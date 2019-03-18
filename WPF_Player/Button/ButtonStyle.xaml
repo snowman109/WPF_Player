@@ -1,0 +1,789 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:local="clr-namespace:WPF_Player"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <local:ValueConverterByPara x:Key="valueConverter"></local:ValueConverterByPara>
+    <SolidColorBrush x:Key="btnColor1" Color="#929292"></SolidColorBrush>
+    <SolidColorBrush x:Key="btnColor2" Color="White"></SolidColorBrush>
+    <SolidColorBrush x:Key="btnBackground" Color="#2d2e30"></SolidColorBrush>
+
+
+    <local:X1Convert x:Key="x1Converter"></local:X1Convert>
+    <local:X2Convert x:Key="x2Converter"></local:X2Convert>
+    <local:Y1Y2Convert x:Key="y1y2Converter"></local:Y1Y2Convert>
+    <local:Get4_1Value x:Key="get4_1Value"></local:Get4_1Value>
+    <local:Get4_3Value x:Key="get4_3Value"></local:Get4_3Value>
+    <local:GetValueByPara x:Key="getValueByPara"></local:GetValueByPara>
+    
+    <Style  TargetType="Button" x:Key="buttonPause">       
+        <Setter Property="ToolTip" Value="暂停"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
+                        </Ellipse>
+                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">                            
+                            <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="5"></Line>
+                            <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.6875}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.1875}"
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.6875}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.8125}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="5"></Line>
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" Value="#FF507FE6"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="false">
+                            <Setter Property="Background" Value="White"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style  TargetType="Button" x:Key="buttonPlay">        
+        <Setter Property="ToolTip" Value="播放"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse Name="el_btnPlay"  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
+                        </Ellipse>
+                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
+                            <Line Name="l1_btnPlay"  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                            <Line Name="l2_btnPlay" X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}"
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                            <Line Name="l3_btnPlay" X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="el_btnPlay" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l1_btnPlay" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l2_btnPlay" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l3_btnPlay" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="false">
+                            <Setter Property="Background" Value="White"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style  TargetType="Button" x:Key="buttonNext">      
+        <Setter Property="ToolTip" Value="下一首"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse  Name="el_btnNext" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
+                        </Ellipse>
+                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
+                            <Line Name="l1_btnNext"  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                            <Line Name="l2_btnNext"  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                            <Line Name="l3_btnNext" X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                            <Line Name="l4_btnNext" X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}"
+                                  Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
+                                  X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                  Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                  Stroke="{StaticResource btnColor1}" StrokeThickness="5"></Line>
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="el_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l1_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l2_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l3_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l4_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="false">
+                            <Setter Property="Background" Value="White"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style  TargetType="Button" x:Key="buttonPrevious">
+        <Setter Property="Background" Value="White"></Setter>
+        <Setter Property="ToolTip" Value="上一首"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse Name="el_Previous" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
+                        </Ellipse>
+                        <Canvas Height="80" Width="80" Opacity="1">
+                            <Line Name="l1_Previous"  X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.25}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="3"></Line>
+                            <Line  Name="l2_Previous" X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}"
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.25}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="3"></Line>
+                            <Line  Name="l3_Previous" X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="3"></Line>
+                            <Line Name="l4_Previous" X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
+                                  Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.25}" 
+                                  X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
+                                  Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                  Stroke="{StaticResource btnColor1}" StrokeThickness="5"></Line>
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="el_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l1_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l2_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l3_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="l4_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>                            
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="false">
+                            <Setter Property="Background" Value="White"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--new button-->
+
+    <Style  TargetType="Button" x:Key="buttonPause_new">       
+        <Setter Property="ToolTip" Value="暂停"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse Name="el_btnPause"  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
+                        </Ellipse>
+                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
+                            <Rectangle Name="r1_btnPause" Height="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
+                                       Width="5"
+                                       Canvas.Left="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
+                                       Canvas.Top="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
+                                       Fill="{StaticResource btnColor1}" StrokeThickness="0" >                                
+                            </Rectangle>
+                            <Rectangle Name="r2_btnPause" Height="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.625}" 
+                                       Width="5"
+                                       Canvas.Left="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.625}"
+                                       Canvas.Top="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.1875}"
+                                       Fill="{StaticResource btnColor1}" StrokeThickness="0">
+                            </Rectangle>                           
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="el_btnPause" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="r1_btnPause" Property="Fill" Value="{StaticResource btnColor2}"></Setter>
+                            <Setter TargetName="r2_btnPause" Property="Fill" Value="{StaticResource btnColor2}"></Setter>
+                        </Trigger>                        
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style  TargetType="Button" x:Key="buttonPlay_new">
+        <Setter Property="ToolTip" Value="播放"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
+                        </Ellipse>
+                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
+                            <Polygon Name="pol_btnPlay" Fill="{StaticResource btnColor1}">
+                                <Polygon.Points>
+                                    <Point X="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
+                                           Y="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}">                                        
+                                    </Point>
+                                    <Point X="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
+                                           Y="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}">
+                                    </Point>
+                                    <Point X="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}"
+                                           Y="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}">
+                                    </Point>
+                                </Polygon.Points>
+                            </Polygon>                          
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="pol_btnPlay" Property="Fill" Value="{StaticResource btnColor2}"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style  TargetType="Button" x:Key="buttonNext_new">
+        <Setter Property="ToolTip" Value="下一首"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
+                        </Ellipse>
+                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
+                            <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                            <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                            <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
+                            <Line X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}"
+                                  Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
+                                  X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                  Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
+                                  Stroke="{StaticResource btnColor1}" StrokeThickness="5"></Line>
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" Value="#FF507FE6"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="false">
+                            <Setter Property="Background" Value="White"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style  TargetType="Button" x:Key="buttonPrevious_new">
+        <Setter Property="Background" Value="White"></Setter>
+        <Setter Property="ToolTip" Value="上一首"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
+                        </Ellipse>
+                        <Canvas Height="80" Width="80" Opacity="1">
+                            <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.25}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="3"></Line>
+                            <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}"
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.25}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="3"></Line>
+                            <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
+                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.5}" 
+                                   Stroke="{StaticResource btnColor1}"  StrokeThickness="3"></Line>
+                            <Line X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
+                                  Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.25}" 
+                                  X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
+                                  Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
+                                  Stroke="{StaticResource btnColor1}" StrokeThickness="5"></Line>
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" Value="#FF507FE6"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="false">
+                            <Setter Property="Background" Value="White"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <!--CloseButton-->
+    <Style TargetType="Button" x:Key="miniButton">
+        <Setter Property="ToolTip" Value="最小化"></Setter>
+        <Setter Property="Background" Value="{StaticResource btnBackground}"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid Name="grid">
+                        <Ellipse Name="rt"  Height="{Binding ElementName=grid, Path=ActualHeight}" Width="{Binding ElementName=grid, Path=ActualWidth}" Fill="{TemplateBinding Background}" />
+                        <Canvas Opacity="1">
+                            <Line Stroke="White" StrokeThickness="2" 
+                                      X1="{Binding ElementName=grid, Path=ActualWidth, Converter={StaticResource x1Converter}}"
+                                      X2="{Binding ElementName=grid, Path=ActualWidth,Converter={StaticResource x2Converter}}"
+                                      Y1="{Binding ElementName=grid, Path=ActualHeight, Converter={StaticResource y1y2Converter}}"
+                                      Y2="{Binding ElementName=grid, Path=ActualHeight, Converter={StaticResource y1y2Converter}}">
+                            </Line>
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Button.IsMouseOver" Value="true">
+                            <Setter TargetName="rt" Property="Fill" Value="blue"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+    <Style TargetType="Button" x:Key="closeButton">
+        <Setter Property="ToolTip" Value="关闭"/>
+        <Setter Property="Background" Value="{StaticResource btnBackground}"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse Name="ep" Fill="{TemplateBinding Background}"></Ellipse>
+                        <Canvas>
+                            <Line X1="{Binding ElementName=ep, Path=ActualHeight, Converter={StaticResource get4_1Value}}"
+                                      Y1="{Binding ElementName=ep, Path=ActualWidth, Converter={StaticResource get4_1Value}}"
+                                      X2="{Binding ElementName=ep, Path=ActualHeight, Converter={StaticResource get4_3Value}}"
+                                      Y2="{Binding ElementName=ep, Path=ActualWidth, Converter={StaticResource get4_3Value}}"
+                                      Stroke="White" StrokeThickness="2">
+                            </Line>
+                            <Line X1="{Binding ElementName=ep, Path=ActualHeight, Converter={StaticResource get4_1Value}}"
+                                      Y1="{Binding ElementName=ep, Path=ActualWidth, Converter={StaticResource get4_3Value}}"
+                                      X2="{Binding ElementName=ep, Path=ActualHeight, Converter={StaticResource get4_3Value}}"
+                                      Y2="{Binding ElementName=ep, Path=ActualWidth, Converter={StaticResource get4_1Value}}"
+                                      Stroke="White" StrokeThickness="2">
+                            </Line>
+                        </Canvas>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="ep" Property="Fill" Value="Red"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ToggleButton" x:Key="ComboxStyleBtn">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <!--下拉按钮内部背景色-->
+                    <Border x:Name="Back" Background="#001f55" BorderThickness="1" BorderBrush="Transparent">
+                        <!--下拉按钮内边框-->
+                        <Path Name="PathFill" Fill="#03ffea"  Width="10" Height="6" StrokeThickness="0" Data="M5,0 L10,10 L0,10 z" RenderTransformOrigin="0.5,0.5" Stretch="Fill">
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="180"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                        </Path>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PathFill" Property="Fill" Value="White"></Setter>
+                            <Setter TargetName="Back" Property="Background" Value="#00CA4F"></Setter>
+                            <Setter TargetName="Back" Property="BorderBrush" Value="#59CA4F"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--Combox-->
+    <Style TargetType="ComboBox" x:Key="ComboBoxStyle">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <!--ComBoxItem-->
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="MinHeight" Value="22"></Setter>
+                    <Setter Property="MinWidth" Value="60"></Setter>
+                    <Setter Property="Width" Value="170"></Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ComboBoxItem">
+                                <Border Name="Back" Background="Transparent"  BorderThickness="0,0,0,0" BorderBrush="#81D779" >
+                                    <ContentPresenter ContentSource="{Binding Source}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" ></ContentPresenter>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsHighlighted" Value="True">
+                                        <Setter TargetName="Back" Property="Background" Value="#cacaca"></Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Back" Property="Background" Value="#FFCBE3FE"></Setter>
+                                    </Trigger>
+ 
+                                    <!--<Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Back" Property="Background" Value="LightGray"></Setter>
+                                    </Trigger>-->
+                                    <!--下拉框背景色-->
+                                    <!--<Trigger Property="IsHighlighted" Value="True">
+                                        <Setter TargetName="Back" Property="Background" Value="#4CFFFFFF"></Setter>
+                                    </Trigger>-->
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="0.3*" MaxWidth="30"/>
+                        </Grid.ColumnDefinitions>
+                        <!--文字区域背景和边线样式-->
+                        <TextBox VerticalAlignment="Center"  Grid.Column="0" Foreground="#545454" BorderBrush="#545454" BorderThickness="0" IsReadOnly="{TemplateBinding IsReadOnly}" Text="{TemplateBinding Text}"></TextBox>
+                        <Border  Grid.Column="0" BorderThickness="1" BorderBrush="#03ffea" CornerRadius="1,0,0,1">
+
+                        </Border>
+                        <!--右侧下拉button设置-->
+                        <Border Grid.Column="1" BorderThickness="0,1,1,1" BorderBrush="#03ffea" CornerRadius="0,1,1,0">
+                            <ToggleButton BorderThickness="3" BorderBrush="#03ffea" Style="{StaticResource ComboxStyleBtn}" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"></ToggleButton>
+                        </Border>
+                        <!--弹出popup整体设置-->
+                        <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" x:Name="Popup" Focusable="False" AllowsTransparency="True" PopupAnimation="Slide" >
+                            <!--弹出popup边框-->
+                            <Border CornerRadius="1" BorderBrush="#03ffea" BorderThickness="1,0,1,1" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{TemplateBinding ActualWidth}" x:Name="DropDown" SnapsToDevicePixels="True">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="0" Opacity="1"/>
+                                </Border.Effect>
+                                <!--下拉幕布边界背景设置 MaxHeight="{TemplateBinding MaxDropDownHeight}"-->
+                                <ScrollViewer Margin="0,0,0,0"   Style="{DynamicResource ScrollViewerStyle}" SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" BorderBrush="#17acae" BorderThickness="2" >
+                                     <!--StackPanel 用于显示子级，方法是将 IsItemsHost 设置为 True--> 
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" Background="#ffffff" Opacity="0.3"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+   
+    <Style TargetType="ScrollViewer" x:Key="ScrollViewerStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                    <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!--右下角四方形-->
+                        <Rectangle x:Name="Corner"  Grid.Row="1" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                        <!--内容区域-->
+                        <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" Grid.Row="0" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}"  ContentTemplate="{TemplateBinding ContentTemplate}" Margin="{TemplateBinding Padding}" />
+                        <!--竖直滚动条-->
+                        <ScrollBar x:Name="PART_VerticalScrollBar" Opacity="0.4"  Grid.Row="0" Grid.Column="1" AutomationProperties.AutomationId="VerticalScrollBar"   Cursor="Arrow" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"   Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"   ViewportSize="{TemplateBinding ViewportHeight}" Style="{DynamicResource ScrollBarStyle}"/>
+                        <!--水平滚动条-->
+                        <ScrollBar x:Name="PART_HorizontalScrollBar" Grid.Row="1" Grid.Column="0" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Maximum="{TemplateBinding ScrollableWidth}"  Minimum="0" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"  Style="{DynamicResource ScrollBarStyle}" Orientation="Horizontal"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HorizontalScrollBarVisibility" Value="Disabled">
+
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+    <Style x:Key="VerticalScrollBarPageButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Rectangle Fill="{TemplateBinding Background}" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="HorizontalScrollBarPageButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Rectangle Fill="{TemplateBinding Background}" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--Theum-->
+    <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border x:Name="border" CornerRadius="3" Background="#ACACAC" BorderThickness="0" >
+
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#888888"/>
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter Property="Background" TargetName="border" Value="#888888"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--滚动条样式-->
+    <Style x:Key="ScrollBarStyle" TargetType="{x:Type ScrollBar}">
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="false"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="Width" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+        <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollBar}">
+                    <Grid x:Name="Bg" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                        <Grid.RowDefinitions>
+                            <RowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}"/>
+                            <RowDefinition Height="0.00001*"/>
+                            <RowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}"/>
+                        </Grid.RowDefinitions>
+                        <!--上箭头-->
+                        <RepeatButton Style="{DynamicResource ArrowDownPathButton}" Command="{x:Static ScrollBar.LineUpCommand}" IsEnabled="{TemplateBinding IsMouseOver}"/>
+                        <!--滑动条 ？ 是不是Slider中的滑动条？？？ -是 -->
+                        <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsMouseOver}" Grid.Row="1">
+                            <!--滑动条上部区域-->
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Style="{StaticResource VerticalScrollBarPageButton}"/>
+                            </Track.DecreaseRepeatButton>
+                            <!--滑动条部分-->
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Style="{StaticResource VerticalScrollBarPageButton}"/>
+                            </Track.IncreaseRepeatButton>
+                            <!--滑动条下部区域-->
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource ScrollBarThumb}" Margin="3,0,3,0"/>
+                            </Track.Thumb>
+                        </Track>
+                        <!--下箭头-->
+                        <RepeatButton Command="{x:Static ScrollBar.LineDownCommand}" IsEnabled="{TemplateBinding IsMouseOver}" Grid.Row="2" Style="{DynamicResource ArrowUpPathButton}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Background" TargetName="Bg" Value="{StaticResource ScrollBarDisabledBackground}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <!--水平摆放时-->
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto"/>
+                <Setter Property="MinWidth" Value="0"/>
+                <Setter Property="Height" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+                <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ScrollBar}">
+                            <Grid x:Name="Bg" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MaxWidth="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}}"/>
+                                    <ColumnDefinition Width="0.00001*"/>
+                                    <ColumnDefinition MaxWidth="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}}"/>
+                                </Grid.ColumnDefinitions>
+                                <RepeatButton Command="{x:Static ScrollBar.LineLeftCommand}" IsEnabled="{TemplateBinding IsMouseOver}" Style="{DynamicResource ArrowLeftPathButton}"/>
+                                <Track x:Name="PART_Track" Grid.Column="1" IsEnabled="{TemplateBinding IsMouseOver}">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Command="{x:Static ScrollBar.PageLeftCommand}" Style="{StaticResource HorizontalScrollBarPageButton}"/>
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Command="{x:Static ScrollBar.PageRightCommand}" Style="{StaticResource HorizontalScrollBarPageButton}"/>
+                                    </Track.IncreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource ScrollBarThumb}" Margin="0,3,0,3"/>
+                                    </Track.Thumb>
+                                </Track>
+                                <RepeatButton Grid.Column="2" Command="{x:Static ScrollBar.LineRightCommand}" IsEnabled="{TemplateBinding IsMouseOver}" Style="{DynamicResource ArrowRightPathButton}"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="false">
+                                    <Setter Property="Background" TargetName="Bg" Value="{StaticResource ScrollBarDisabledBackground}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--下箭头-->
+    <Style x:Key="ArrowDownPathButton" TargetType="RepeatButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Path x:Name="PathFill" Fill="#868999" Width="13" Height="8" StrokeThickness="0" Data="M5.0000001,0 L10,10 L-2.0915641E-08,10 z" RenderTransformOrigin="0.500000001045782,0.5" Stretch="Fill">
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="180"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                        </Path>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Fill" TargetName="PathFill" Value="#1C97EA"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" TargetName="PathFill" Value="#FF4D84AE"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--上箭头-->
+    <Style x:Key="ArrowUpPathButton" TargetType="RepeatButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Path x:Name="PathFill" Fill="#868999" Width="13" Height="8" VerticalAlignment="Center" HorizontalAlignment="Center"  StrokeThickness="0" Data="M5.0000001,0 L10,10 L-2.0915641E-08,10 z" RenderTransformOrigin="0.500000001045782,0.5" Stretch="Fill">
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="0"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                        </Path>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Fill" TargetName="PathFill" Value="#1C97EA"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" TargetName="PathFill" Value="#FF4D84AE"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--左箭头-->
+    <Style x:Key="ArrowLeftPathButton" TargetType="RepeatButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Path x:Name="PathFill" Fill="#868999" Width="13" Height="8" StrokeThickness="0" Data="M5.0000001,0 L10,10 L-2.0915641E-08,10 z" RenderTransformOrigin="0.500000001045782,0.5" Stretch="Fill">
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="-90"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                        </Path>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Fill" TargetName="PathFill" Value="#1C97EA"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" TargetName="PathFill" Value="#FF4D84AE"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--右箭头-->
+    <Style x:Key="ArrowRightPathButton" TargetType="RepeatButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Path x:Name="PathFill" Fill="#868999" Width="13" Height="8" VerticalAlignment="Center" HorizontalAlignment="Center"  StrokeThickness="0" Data="M5.0000001,0 L10,10 L-2.0915641E-08,10 z" RenderTransformOrigin="0.500000001045782,0.5" Stretch="Fill">
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform Angle="90"/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                        </Path>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Fill" TargetName="PathFill" Value="#1C97EA"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" TargetName="PathFill" Value="#FF4D84AE"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

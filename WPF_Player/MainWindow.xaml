@@ -1,0 +1,30 @@
+﻿<Window x:Class="WPF_Player.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Timer" Height="199.166" Width="306" 
+        Icon="music_player_128px_1201868_easyicon.net.ico"  WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" 
+        Background="Transparent" ShowInTaskbar="False">
+    <Grid Margin="0,0,0,17">
+        <Rectangle x:Name="back" Fill="#000000" Opacity="0.3" HorizontalAlignment="Left" Height="204" VerticalAlignment="Top" Width="309"
+				   MouseLeftButtonDown="Window_MouseLeftButtonDown" Margin="-3,-3,0,-19"/>
+        <Label x:Name="word1" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" MouseEnter="Word1_MouseEnter" MouseLeave="Word1_MouseLeave" FontSize="12" Foreground="Blue" Content="One" HorizontalAlignment="Left" Margin="199,4,0,0" VerticalAlignment="Top" Height="23" Width="107"/>
+        <Label x:Name="word2" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" MouseEnter="Word2_MouseEnter" MouseLeave="Word2_MouseLeave" FontSize="12" Foreground="Blue" Content="Two" HorizontalAlignment="Left" Margin="199,27,0,0" VerticalAlignment="Top" Height="23" Width="107"/>
+        <Label x:Name="word3" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" MouseEnter="Word3_MouseEnter" MouseLeave="Word3_MouseLeave" FontSize="12" Foreground="Blue" Content="Three" HorizontalAlignment="Left" Margin="199,50,0,0" VerticalAlignment="Top" Height="23" Width="107"/>
+        <Label x:Name="word4" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" MouseEnter="Word4_MouseEnter" MouseLeave="Word4_MouseLeave" FontSize="12" Foreground="Blue" Content="Four" HorizontalAlignment="Left" Margin="199,73,0,0" VerticalAlignment="Top" Height="23" Width="107"/>
+        <Label x:Name="word5" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" MouseEnter="Word5_MouseEnter" MouseLeave="Word5_MouseLeave" FontSize="12" Foreground="Blue" Content="Five" HorizontalAlignment="Left" Margin="199,96,0,0" VerticalAlignment="Top" Height="23" Width="107"/>
+        <Label x:Name="word6" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" MouseEnter="Word6_MouseEnter" MouseLeave="Word6_MouseLeave" FontSize="12" Foreground="Blue" Content="Six" HorizontalAlignment="Left" Margin="199,119,0,0" VerticalAlignment="Top" Height="23" Width="107"/>
+        <Label x:Name="time" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" FontSize="40" Foreground="WhiteSmoke" HorizontalAlignment="Left" VerticalAlignment="Top" Height="61" Width="170" Content="22:11:51" Margin="1,0,0,0"/>
+        <Label x:Name="date" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" FontSize="20" HorizontalAlignment="Left" Margin="82,67,0,0" VerticalAlignment="Top" Width="112" Height="32" Content="2019-3-13"/>
+        <Label x:Name="days" HorizontalContentAlignment="Right"  MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" FontSize="40" Foreground="Red" HorizontalAlignment="Left" Margin="-4,80,0,0" VerticalAlignment="Top" Height="51" Width="87" Content="284"/>
+        <Label x:Name="note" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseDoubleClick="Grid_MainTitle_MouseDown" Content="days before exam" FontSize="10" Foreground="White" HorizontalAlignment="Left" Margin="87,111,0,0" VerticalAlignment="Top" Width="96" Height="33"/>
+        <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="listBox" Opacity="0.3" HorizontalAlignment="Left" Margin="1,142,0,0" Width="193" SelectionChanged="listBox_MouseDoubleClick" VerticalAlignment="Top" Height="24"/>
+        <Button Style="{StaticResource buttonPrevious}" Opacity="0.3" Background="#2d2e30" Margin="20,172,263,-13"  x:Name="btn_Previous" Click="btn_Previous_Click"/>
+        <Button Style="{StaticResource buttonPlay}" Opacity="0.3" Background="#2d2e30" Margin="141,172,142,-13" x:Name="btn_Play" Click="btn_Play_Click"/>
+        <Button Style="{StaticResource buttonNext}" Opacity="0.3" Background="#2d2e30" Margin="263,172,20,-13" x:Name="btn_Next" Click="btn_Next_Click"/>
+        <Label  x:Name="lable" FontSize="10" VerticalAlignment="Center" Opacity="0.5" Foreground="WhiteSmoke" Margin="199,147,10,11" Height="24"/>
+
+    </Grid>
+</Window>
