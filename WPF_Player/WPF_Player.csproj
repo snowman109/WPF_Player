@@ -83,6 +83,7 @@
     <Compile Include="Convert\Convert.cs" />
     <Compile Include="Convert\SliderValueConverter.cs" />
     <Compile Include="Convert\ValueConverterByPara.cs" />
+    <Compile Include="Win32.cs" />
     <Page Include="Button\ButtonStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

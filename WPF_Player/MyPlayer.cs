@@ -81,7 +81,6 @@ namespace WPF_Player
         public void Play()
         {
             _player.Play();
-           
             timer.Enabled = true;
             timer_thread.Enabled = true;
         }

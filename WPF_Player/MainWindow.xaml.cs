@@ -30,12 +30,30 @@ namespace WPF_Player
         private DispatcherTimer myTimer = null;
         private Boolean move1 = false;
         private DirectoryInfo info;
+        readonly Dictionary<string, short> hotKeyDic = new Dictionary<string, short>();
+        private int count = 0;
+        private int MAXBUFFERTIME = 15;
 
         public MainWindow()
         {
             InitializeComponent();
             this.Loaded += image_Loaded;
             this.Loaded += Window_Loaded;
+            this.Loaded += (sender, e) =>
+            {
+                var wpfHwnd = new WindowInteropHelper(this).Handle;
+
+                var hWndSource = HwndSource.FromHwnd(wpfHwnd);
+                //添加处理程序
+                if (hWndSource != null) hWndSource.AddHook(MainWindowProc);
+
+                hotKeyDic.Add("Ctrl-P", Win32.GlobalAddAtom("Ctrl-P"));
+                hotKeyDic.Add("Ctrl-Next", Win32.GlobalAddAtom("Ctrl-Next"));
+                hotKeyDic.Add("Ctrl-Pre", Win32.GlobalAddAtom("Ctrl-Pre"));
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-P"], Win32.KeyModifiers.Ctrl, (int)System.Windows.Forms.Keys.P);
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Next"], Win32.KeyModifiers.Ctrl, (int)System.Windows.Forms.Keys.Right);
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Pre"], Win32.KeyModifiers.Ctrl, (int)System.Windows.Forms.Keys.Left);
+            };
             this.ShowInTaskbar = false;
             myTimer = new DispatcherTimer();  //实例化定时器
             //设置定时器属性
@@ -58,21 +76,48 @@ namespace WPF_Player
         string currentListId = null;
         private int currentIndex = 0;
         string folderPath = "D://timerconfig//";
+
+        /// <summary>
+        /// 响应快捷键事件
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="msg"></param>
+        /// <param name="wParam"></param>
+        /// <param name="lParam"></param>
+        /// <param name="handled"></param>
+        /// <returns></returns>
+        private IntPtr MainWindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            switch (msg)
+            {
+                case Win32.WmHotkey:
+                    {
+                        int sid = wParam.ToInt32();
+                        if (sid == hotKeyDic["Ctrl-P"])
+                        {
+                            Play();
+                        }
+                        else if (sid == hotKeyDic["Ctrl-Next"])
+                        {
+                            PlayNext();
+                        }
+                        else if (sid == hotKeyDic["Ctrl-Pre"])
+                        {
+                            PlayPrevious();
+                        }
+                        handled = true;
+                        break;
+                    }
+            }
+
+            return IntPtr.Zero;
+        }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //IntPtr hWnd = new WindowInteropHelper(this).Handle;
-            //SetWindowPos(hWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-
-            //IntPtr windowHandle = (new WindowInteropHelper(this)).Handle;
-            //HwndSource src = HwndSource.FromHwnd(windowHandle);
-            //src.AddHook(new HwndSourceHook(WndProc));
             playerhandle = player.GetPlayerHandle();
           
             playerhandle.MediaFailed += playerhandle_MediaFailed;
             player.playEvent += player_playEvent;
-            //this.slider.DataContext = player;
-            //acquireList(folderPath);
-            
 
             this.listBox.ItemsSource = songsOfList;
             listBox.DisplayMemberPath = "Name";
@@ -169,12 +214,19 @@ namespace WPF_Player
 
             if (!playerhandle.NaturalDuration.HasTimeSpan)
             {
+                count++;
+                if (count > MAXBUFFERTIME)
+                {
+                    count = 0;
+                    PlayNext();
+                }
                 return;
             }
+            count = 0;
             double PlayedTime = playerhandle.Position.TotalSeconds;
 
             double totalTime = playerhandle.NaturalDuration.TimeSpan.TotalSeconds;
-
+            //Console.WriteLine("这是总时间" + playerhandle.Source);
             this.lable.Content = string.Format("{0}/{1}", playerhandle.Position.ToString("mm\\:ss"), playerhandle.NaturalDuration.TimeSpan.ToString("mm\\:ss"));
             if (PlayedTime == totalTime)
             {
@@ -195,10 +247,15 @@ namespace WPF_Player
 
         private void btn_Play_Click(object sender, RoutedEventArgs e)
         {
+            Play();
+        }
+
+        private void Play()
+        {
             //1,暂停播放
             //2,从一首新歌播放
             if (currentStatus == PlayerStatus.Pause)
-            {            
+            {
                 Song song = this.listBox.SelectedItem as Song;
                 currentIndex = this.listBox.SelectedIndex;
                 if (song != player.CurrentSong)
@@ -207,15 +264,27 @@ namespace WPF_Player
                 currentStatus = PlayerStatus.Start;
                 this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPause_new"]);
             }
-            else if( currentStatus== PlayerStatus.NerverStart)
+            else if (currentStatus == PlayerStatus.NerverStart)
             {
+                Song song;
                 if (this.listBox.SelectedIndex < 0)
                 {
-                    //this.rollingText.Text = "请选择一首歌曲然后播放！";
-                    return;
+                    if (playList.Count > 0)
+                    {
+                        song = playList[0];
+                        currentIndex = 0;
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
-                Song song = this.listBox.SelectedItem as Song;
-                currentIndex = this.listBox.SelectedIndex;
+                else
+                {
+                    song = this.listBox.SelectedItem as Song;
+                    currentIndex = this.listBox.SelectedIndex;
+                }
+                this.listBox.SelectedIndex = currentIndex;
                 player.CurrentSong = song;
                 player.Play();
                 currentStatus = PlayerStatus.Start;
@@ -227,9 +296,7 @@ namespace WPF_Player
                 currentStatus = PlayerStatus.Pause;
                 this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPlay"]);
             }
-
         }
-
         private void btn_Previous_Click(object sender, RoutedEventArgs e)
         {
             if (playList.Count > 0)
