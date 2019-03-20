@@ -72,7 +72,6 @@ C:\Users\10912\Downloads\WPF_Player\WPF_Player\bin\Debug\WPF_Player.pdb
 C:\Users\10912\Downloads\WPF_Player\WPF_Player\bin\Debug\Newtonsoft.Json.dll
 C:\Users\10912\Downloads\WPF_Player\WPF_Player\bin\Debug\Newtonsoft.Json.pdb
 C:\Users\10912\Downloads\WPF_Player\WPF_Player\bin\Debug\Newtonsoft.Json.xml
-C:\Users\10912\Downloads\WPF_Player\WPF_Player\obj\Debug\WPF_Player.csprojAssemblyReference.cache
 C:\Users\10912\Downloads\WPF_Player\WPF_Player\obj\Debug\MainWindow.baml
 C:\Users\10912\Downloads\WPF_Player\WPF_Player\obj\Debug\App.baml
 C:\Users\10912\Downloads\WPF_Player\WPF_Player\obj\Debug\MainWindow.g.cs

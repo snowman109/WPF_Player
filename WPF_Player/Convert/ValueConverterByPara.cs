@@ -19,7 +19,7 @@ namespace WPF_Player
             }
             catch (Exception e)
             {
-                throw;
+                throw e;
             }
         }
 

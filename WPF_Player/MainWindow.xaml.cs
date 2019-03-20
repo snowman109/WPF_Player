@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Drawing;
 using System.Windows.Threading;
+using Echevil;
 
 namespace WPF_Player
 {
@@ -50,10 +51,11 @@ namespace WPF_Player
                 hotKeyDic.Add("Ctrl-P", Win32.GlobalAddAtom("Ctrl-P"));
                 hotKeyDic.Add("Ctrl-Next", Win32.GlobalAddAtom("Ctrl-Next"));
                 hotKeyDic.Add("Ctrl-Pre", Win32.GlobalAddAtom("Ctrl-Pre"));
-                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-P"], Win32.KeyModifiers.Ctrl, (int)System.Windows.Forms.Keys.P);
-                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Next"], Win32.KeyModifiers.Ctrl, (int)System.Windows.Forms.Keys.Right);
-                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Pre"], Win32.KeyModifiers.Ctrl, (int)System.Windows.Forms.Keys.Left);
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-P"], Win32.KeyModifiers.Ctrl|Win32.KeyModifiers.Alt ,(int)System.Windows.Forms.Keys.P);
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Next"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.Right);
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Pre"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.Left);
             };
+            this.Loaded += FormMain_Load;
             this.ShowInTaskbar = false;
             myTimer = new DispatcherTimer();  //实例化定时器
             //设置定时器属性
@@ -76,7 +78,47 @@ namespace WPF_Player
         string currentListId = null;
         private int currentIndex = 0;
         string folderPath = "D://timerconfig//";
+        private NetworkAdapter[] adapters;
+        private NetworkMonitor monitor;
 
+        private void FormMain_Load(object sender, System.EventArgs e)
+        {
+            monitor = new NetworkMonitor();
+            this.adapters = monitor.Adapters;           
+        }
+
+        private void TimerCounter_Tick()
+        {
+            string down = "kB/s";
+            string up = "KB/s";
+            double downloadSpeed = 0;
+            double uploadSpeed = 0;
+            for(int i = 0; i < adapters.Length; i++)
+            {
+                monitor.StartMonitoring();
+                //Console.WriteLine(adapters[i].DownloadSpeedKbps);
+                downloadSpeed += adapters[i].DownloadSpeedKbps;
+                uploadSpeed += adapters[i].UploadSpeedKbps;
+            }
+            //// 转换成KB
+            //downloadSpeed /= 8;
+            //uploadSpeed /= 8;
+            // 转换成MB
+            if (downloadSpeed > 1024)
+            {
+                downloadSpeed /= 1024;
+                down = "MB/s";
+            }
+            if (uploadSpeed > 1024)
+            {
+                uploadSpeed /= 1024;
+                up = "MB/s";
+            }
+            this.Download.Content = "↓ " +  downloadSpeed.ToString("0.00")+down;
+            this.Upload.Content = "↑ "+uploadSpeed.ToString("0.00")+up;
+            //this.LableDownloadValue.Text = String.Format("{0:n} kbps", adapter.DownloadSpeedKbps);
+            //this.LabelUploadValue.Text = String.Format("{0:n} kbps", adapter.UploadSpeedKbps);
+        }
         /// <summary>
         /// 响应快捷键事件
         /// </summary>
@@ -163,7 +205,7 @@ namespace WPF_Player
                     JObject o = (JObject)JToken.ReadFrom(reader);
                     foreach (JProperty jProperty in o.Properties())
                     {
-                        Console.WriteLine(jProperty.Name.ToString()+":"+ jProperty.Value.ToString());
+                        //Console.WriteLine(jProperty.Name.ToString()+":"+ jProperty.Value.ToString());
                         list.Add(jProperty.Name.ToString(), jProperty.Value.ToString());
                         if (jProperty.Value.ToString().Contains("喜欢的音乐"))
                         {
@@ -344,7 +386,7 @@ namespace WPF_Player
        
         private List<Song> GetMP3Files(string folderName,string listID)
         {
-            Console.WriteLine("当前listId:" + listID);
+            //Console.WriteLine("当前listId:" + listID);
             if (!Directory.Exists(folderName))
                 throw new Exception("文件夹:" + folderName + "不存在！");
             songsOfList.Clear();
@@ -395,7 +437,8 @@ namespace WPF_Player
             else
             {
                 this.back.Fill = System.Windows.Media.Brushes.Black;
-            }          
+            }
+            TimerCounter_Tick();
         }
 
         private int getDays(DateTime now)
@@ -584,7 +627,7 @@ namespace WPF_Player
             double ScreenWidth = System.Windows.SystemParameters.PrimaryScreenWidth;//WPF
             double ScreenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;//WPF
             this.Top = this.Height*1.4 ;
-            this.Left = ScreenWidth - this.Width-3;
+            this.Left = ScreenWidth - this.Width-1;
             //this.Top = 0;
             //this.Left = 0;
         }

@@ -71,7 +71,7 @@ namespace WPF_Player
             set { 
                
                     _songPath = value;
-                    Console.WriteLine("player播放了" + value);
+                    //Console.WriteLine("player播放了" + value);
                     _player.Open(new Uri(value));
                     if (_player.NaturalDuration.HasTimeSpan)
                         Length = _player.NaturalDuration.TimeSpan.TotalSeconds;
