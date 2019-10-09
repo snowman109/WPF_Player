@@ -123,9 +123,7 @@
     <EmbeddedResource Include="Tray.ico" />
     <Resource Include="music_player_128px_1201868_easyicon.net.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="UC\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

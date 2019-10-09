@@ -196,7 +196,9 @@ namespace WPF_Player
             if (!Directory.Exists(folderName)|| !File.Exists(folderName + "playlist.json"))
             {
                 //acquireList(folderName);
-                throw new Exception("文件夹:" + folderName + "不存在");
+                //throw new Exception("文件夹:" + folderName + "不存在");
+                System.Windows.MessageBox.Show("请提前运行小工具获得歌单,如已运行请查看D盘是否存在timerconfig配置文件夹", "获取歌单失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
             using (System.IO.StreamReader file = System.IO.File.OpenText(folderName + "playlist.json"))
             {
@@ -388,7 +390,11 @@ namespace WPF_Player
         {
             //Console.WriteLine("当前listId:" + listID);
             if (!Directory.Exists(folderName))
-                throw new Exception("文件夹:" + folderName + "不存在！");
+            {
+                System.Windows.MessageBox.Show("请提前运行小工具获得歌单,如已运行请查看D盘是否存在timerconfig配置文件夹", "获取歌曲失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new List<Song>(); 
+                //throw new Exception("文件夹:" + folderName + "不存在！");
+            }
             songsOfList.Clear();
             using (System.IO.StreamReader file = System.IO.File.OpenText(folderName+"songs.json"))
             {

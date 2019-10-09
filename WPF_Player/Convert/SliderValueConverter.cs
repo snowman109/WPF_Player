@@ -7,11 +7,11 @@ using System.Windows.Data;
 
 namespace WPF_Player
 {
-    class SliderValueConverter:IValueConverter
+    class SliderValueConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            
+
             return (int)double.Parse(value.ToString());
         }
 
