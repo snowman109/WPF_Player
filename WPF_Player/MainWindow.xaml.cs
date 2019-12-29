@@ -33,7 +33,7 @@ namespace WPF_Player
         private DirectoryInfo info;
         readonly Dictionary<string, short> hotKeyDic = new Dictionary<string, short>();
         private int count = 0;
-        private int MAXBUFFERTIME = 15;
+        private int MAXBUFFERTIME = 10;
         NeateaseAPI.API api = new NeateaseAPI.API();
         MyPlayer player = new MyPlayer();
         MediaPlayer playerhandle = null;
@@ -43,7 +43,10 @@ namespace WPF_Player
         List<Song> songsOfList = new List<Song>();
         BindingSource bsSong = new BindingSource();
         string currentListId = null;
-        private int currentIndex = 0;
+        private int currentIndex;
+        string mode;
+        String span;
+        private List<string> playMode=new List<string>(); // 0顺序播放，1随机播放，2单曲循环
         string defaultPath = "D://timerconfig//";
         string defaultUid = "517377194";
         string folderPath;
@@ -58,11 +61,9 @@ namespace WPF_Player
             this.Loaded += (sender, e) =>
             {
                 var wpfHwnd = new WindowInteropHelper(this).Handle;
-
                 var hWndSource = HwndSource.FromHwnd(wpfHwnd);
                 //添加处理程序
                 if (hWndSource != null) hWndSource.AddHook(MainWindowProc);
-
                 hotKeyDic.Add("Ctrl-P", Win32.GlobalAddAtom("Ctrl-P"));
                 hotKeyDic.Add("Ctrl-Next", Win32.GlobalAddAtom("Ctrl-Next"));
                 hotKeyDic.Add("Ctrl-Pre", Win32.GlobalAddAtom("Ctrl-Pre"));
@@ -70,21 +71,96 @@ namespace WPF_Player
                 Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Next"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.Right);
                 Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Pre"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.Left);
             };
+            playMode.Add("order");
+            playMode.Add("shuffle");
+            playMode.Add("once");
+            mode = playMode[0];
             this.Loaded += FormMain_Load;
             this.ShowInTaskbar = false;
-            this.Topmost = false;
-            
             myTimer = new DispatcherTimer();  //实例化定时器
             //设置定时器属性
             myTimer.Interval = new TimeSpan(0, 0, 1);  //创建时分秒
             myTimer.Tick += new EventHandler(Timer_Tick);
             //启动定时器
             Read();
-            GetList(defaultPath);
-            GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
+            initArgs();
             WinPosition();
             Initializenotifyicon();
             myTimer.Start();  
+        }
+
+        private void initArgs()
+        {
+            playerhandle = player.GetPlayerHandle();
+            playerhandle.MediaFailed += playerhandle_MediaFailed;
+            player.playEvent += player_playEvent;
+            span = "0:0:0";
+            if (File.Exists(defaultPath + "save.json"))
+            {
+                StreamReader sr = new StreamReader(defaultPath + "save.json",Encoding.UTF8);
+                String line;
+                StringBuilder sb = new StringBuilder();
+                while ((line = sr.ReadLine()) != null)
+                {
+                    sb.Append(line);
+                }
+                JObject save = JObject.Parse(sb.ToString());
+                sr.Close();
+                sr = new StreamReader(defaultPath + "listId.ini", Encoding.UTF8);
+                currentListId = sr.ReadLine();
+                if (currentListId.Equals(save["currentListId"].ToString()))
+                {
+                    list = save["list"].ToObject<Dictionary<string, string>>();
+                    playList = save["playList"].ToObject<ObservableCollection<Song>>();
+                    songsOfList = save["songsOfList"].ToObject<List<Song>>();
+                    currentIndex = int.Parse(save["currentIndex"].ToString());
+                    span= save["position"].ToString();
+                }
+                else
+                {
+                    GetList(defaultPath);
+                    GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
+                }
+                mode = save["mode"].ToString();
+                move1 = bool.Parse(save["move1"].ToString());
+            }
+            else
+            {
+                GetList(defaultPath);
+                GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
+                mode = playMode[0];
+                move1 = true;
+            }
+            bsSong.DataSource = songsOfList;
+            this.listBox.ItemsSource = bsSong;
+            listBox.DisplayMemberPath = "Name";
+            listBox.SelectedValuePath = "Location";
+            showMusic();
+        }
+        private void showMusic()
+        {
+            Song song = playList[currentIndex];
+            this.listBox.SelectedIndex = currentIndex;
+            player.CurrentSong = song;
+            playerhandle.Open(new Uri(song.Location));
+            player.Pause();
+            currentStatus = PlayerStatus.Pause;
+            this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPlay"]);
+            var now = DateTime.Now;
+            while (!playerhandle.NaturalDuration.HasTimeSpan) 
+            {
+                if (DateTime.Now.Subtract(now).TotalSeconds > 10)
+                {
+                    break;
+                }
+            }
+            String[] times = span.Split(':');
+            playerhandle.Position = new TimeSpan(int.Parse(times[0]), int.Parse(times[1]), int.Parse(times[2].Split('.')[0]));
+            if (playerhandle != null&& playerhandle.NaturalDuration.HasTimeSpan)
+            {
+                this.lable.Content = string.Format("{0}/{1}", playerhandle.Position.ToString("mm\\:ss"), playerhandle.NaturalDuration.TimeSpan.ToString("mm\\:ss"));
+            }
+            
         }
 
         //API
@@ -205,15 +281,7 @@ namespace WPF_Player
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             SetParent(new WindowInteropHelper(this).Handle, GetDesktopPtr());
-            playerhandle = player.GetPlayerHandle();
-          
-            playerhandle.MediaFailed += playerhandle_MediaFailed;
-            player.playEvent += player_playEvent;
-
-            bsSong.DataSource = songsOfList;
-            this.listBox.ItemsSource = bsSong;
-            listBox.DisplayMemberPath = "Name";
-            listBox.SelectedValuePath = "Location";   
+            
         }
         //private void acquireList(String folderName)
         //{
@@ -325,7 +393,15 @@ namespace WPF_Player
             this.lable.Content = string.Format("{0}/{1}", playerhandle.Position.ToString("mm\\:ss"), playerhandle.NaturalDuration.TimeSpan.ToString("mm\\:ss"));
             if (PlayedTime == totalTime)
             {
-                PlayNext();
+                // 不是单曲循环时才下一首开始
+                if (!mode.Equals(playMode[2]))
+                {
+                    PlayNext();
+                }
+                else
+                {
+                    PlayThis();
+                }
                 return;
             }
              
@@ -334,7 +410,17 @@ namespace WPF_Player
             //    lastValue = (int)this.trackBar.CurrentValue;
             //}
         }
-       
+
+        private void PlayThis()
+        {
+            if (currentStatus == PlayerStatus.Start)
+                player.Stop();
+            this.listBox.SelectedIndex = currentIndex;
+            player.CurrentSong = playList[currentIndex];
+            player.Play();
+            currentStatus = PlayerStatus.Start;
+        }
+
         void playerhandle_MediaFailed(object sender, ExceptionEventArgs e)
         {
             
@@ -402,9 +488,7 @@ namespace WPF_Player
         {
             if (currentStatus == PlayerStatus.Start)
                 player.Stop();
-            currentIndex--;
-            if (currentIndex < 0)
-                currentIndex = playList.Count - 1;
+            acquireIndex(Const.PLAY_PRE);
             this.listBox.SelectedIndex = currentIndex;
             player.CurrentSong = playList[currentIndex];
             player.Play();
@@ -414,15 +498,37 @@ namespace WPF_Player
         {
             if (currentStatus == PlayerStatus.Start)
                 player.Stop();
-            currentIndex++;
-            if (currentIndex > playList.Count - 1)
-                currentIndex = 0;
+            acquireIndex(Const.PLAY_NEXT);
             this.listBox.SelectedIndex = currentIndex;
-
             player.CurrentSong = playList[currentIndex];
             player.Play();
             currentStatus = PlayerStatus.Start;
             
+        }
+
+        // 获得下一首音乐的index
+        private void acquireIndex(String nOrP)
+        {
+            // 随机播放
+            if (mode.Equals(playMode[1]))
+            {
+                currentIndex = new Random(Guid.NewGuid().GetHashCode()).Next(0, songsOfList.Count-1);
+            }else if (mode.Equals(playMode[0])||mode.Equals(playMode[2])) // 顺序播放
+            {
+                if (nOrP.Equals(Const.PLAY_NEXT))
+                {
+                    currentIndex++;
+                    if (currentIndex > playList.Count - 1)
+                        currentIndex = 0;
+                }
+                else if (nOrP.Equals(Const.PLAY_PRE))
+                {
+                    currentIndex--;
+                    if (currentIndex < 0)
+                        currentIndex = playList.Count - 1;
+                }
+            }
+            // 单曲循环不在这里控制
         }
         private void btn_Next_Click(object sender, RoutedEventArgs e)
         {
@@ -490,6 +596,11 @@ namespace WPF_Player
             DateTime now = DateTime.Now;
             this.time.Content = transTime(now.Hour.ToString()) + ":" + transTime(now.Minute.ToString()) + ":" + transTime(now.Second.ToString());
             TimerCounter_Tick();
+            // 每半分钟存一下状态
+            if (now.Second%30 == 0)
+            {
+                saveArgs();
+            }
         }
 
         // 将2改成02
@@ -650,7 +761,7 @@ namespace WPF_Player
             TrayIcon.Click += new System.EventHandler(this.click);
 
             //tray menu
-            System.Windows.Forms.MenuItem[] mnuItms = new System.Windows.Forms.MenuItem[9];
+            System.Windows.Forms.MenuItem[] mnuItms = new System.Windows.Forms.MenuItem[11];
             mnuItms[0] = new System.Windows.Forms.MenuItem();
             mnuItms[0].Text = "Aways Top";
             mnuItms[0].Click += new System.EventHandler(this.TopAllmost);
@@ -661,7 +772,7 @@ namespace WPF_Player
             mnuItms[2] = new System.Windows.Forms.MenuItem();
             mnuItms[2].Text = "Locked";
             mnuItms[2].Click += new System.EventHandler(this.Locked);
-            mnuItms[2].Checked = false;
+            mnuItms[2].Checked = !move1;
 
             mnuItms[3] = new System.Windows.Forms.MenuItem("-");
 
@@ -678,14 +789,28 @@ namespace WPF_Player
             mnuItms[7] = new System.Windows.Forms.MenuItem("-");
 
             mnuItms[8] = new System.Windows.Forms.MenuItem();
-            mnuItms[8].Text = "Exit";
-            mnuItms[8].Click += new System.EventHandler(this.ExitSelect);
-            mnuItms[8].DefaultItem = true;
+            mnuItms[8].Text = mode;
+            mnuItms[8].Click += new System.EventHandler(this.ChangePlayMode);
+
+            mnuItms[9] = new System.Windows.Forms.MenuItem("-");
+
+            mnuItms[10] = new System.Windows.Forms.MenuItem();
+            mnuItms[10].Text = "Exit";
+            mnuItms[10].Click += new System.EventHandler(this.ExitSelect);
+            mnuItms[10].DefaultItem = true;
 
             
 
             notifyiconMnu = new System.Windows.Forms.ContextMenu(mnuItms);
             TrayIcon.ContextMenu = notifyiconMnu;
+        }
+
+        private void ChangePlayMode(object sender,EventArgs e)
+        {
+            System.Windows.Forms.MenuItem item = (System.Windows.Forms.MenuItem)sender;
+            int index = playMode.IndexOf(item.Text);
+            item.Text = playMode[(index + 1) % playMode.Count()];
+            mode = item.Text;
         }
 
         private void Locked(object sender, EventArgs e)
@@ -707,21 +832,33 @@ namespace WPF_Player
         }
         public void TopAllmost(object sender, System.EventArgs e)
         {
-            try
-            {
-                System.Windows.Forms.MenuItem item = (System.Windows.Forms.MenuItem)sender;
-                bool check = item.Checked;
-                item.Checked = !check;
-                this.Topmost = item.Checked;
-            }
-            catch
-            {
-            }
+            System.Windows.Forms.MenuItem item = (System.Windows.Forms.MenuItem)sender;
+            bool check = item.Checked;
+            item.Checked = !check;
+            this.Topmost = item.Checked;
         }
         public void ExitSelect(object sender, System.EventArgs e)
         {
             TrayIcon.Visible = false;
             this.Close();
+            saveArgs();
+        }
+
+        private void saveArgs()
+        {
+            JObject save = new JObject();
+            save.Add("currentIndex", JToken.FromObject(currentIndex));
+            save.Add("mode", JToken.FromObject(mode));
+            save.Add("currentListId", JToken.FromObject(currentListId));
+            save.Add("move1", JToken.FromObject(move1));
+            save.Add("list", JToken.FromObject(list));
+            save.Add("songsOfList", JToken.FromObject(songsOfList));
+            save.Add("playList", JToken.FromObject(playList));
+            save.Add("position", playerhandle.Position);
+            StreamWriter sw = System.IO.File.CreateText(defaultPath + "save.json");
+            sw.WriteLine(save.ToString());
+            sw.Flush();
+            sw.Close();
         }
 
         public void RelodMusic(object sender, System.EventArgs e)
@@ -730,6 +867,7 @@ namespace WPF_Player
             {
                 Play();
             }
+            this.span = "0:0:0";
             this.playList.Clear();
             StreamReader listIdReader = new StreamReader(defaultPath+"listId.ini");
             String lid = listIdReader.ReadLine();
@@ -748,7 +886,7 @@ namespace WPF_Player
                 currentListId = lid;
                 GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
                 bsSong.ResetBindings(false);
-                this.lable.Content = "xx:xx/xx:xx";
+                showMusic();
             }
         }
         #region Window styles

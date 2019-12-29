@@ -106,6 +106,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Const.cs" />
     <Compile Include="Convert\Convert.cs" />
     <Compile Include="Convert\SliderValueConverter.cs" />
     <Compile Include="Convert\ValueConverterByPara.cs" />

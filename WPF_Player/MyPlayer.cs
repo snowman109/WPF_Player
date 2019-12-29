@@ -68,13 +68,16 @@ namespace WPF_Player
         public string SongPath
         {
             get { return _player.Source.LocalPath; }
-            set { 
-               
-                    _songPath = value;
-                    //Console.WriteLine("player播放了" + value);
-                    _player.Open(new Uri(value));
-                    if (_player.NaturalDuration.HasTimeSpan)
-                        Length = _player.NaturalDuration.TimeSpan.TotalSeconds;
+            set {
+                _songPath = value;
+
+                Console.WriteLine("player播放了" + value);
+                _player.Open(new Uri(value));
+                if (_player.NaturalDuration.HasTimeSpan)
+                {
+                    Length = _player.NaturalDuration.TimeSpan.TotalSeconds;
+                }
+                    
               
             }
         }

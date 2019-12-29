@@ -139,14 +139,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="WPF_Player.exe" size="365000">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="WPF_Player.exe" size="367560">
       <assemblyIdentity name="WPF_Player" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>+wPBEzEZfZkiQz10GzS/P75utVWNI3b9EWp7jy5S2tM=</dsig:DigestValue>
+        <dsig:DigestValue>b1A1axG82R/BVoX/n4e/JbDLiCx2aVA4zc3VaNm6hXs=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
