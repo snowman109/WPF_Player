@@ -16,6 +16,8 @@ using System.Reflection;
 using System.Drawing;
 using System.Windows.Threading;
 using Echevil;
+using System.Runtime.InteropServices;
+using NeteaseCloudMusicApi;
 
 namespace WPF_Player
 {
@@ -29,12 +31,26 @@ namespace WPF_Player
         private NotifyIcon TrayIcon;
         private System.Windows.Forms.ContextMenu notifyiconMnu;
         private DispatcherTimer myTimer = null;
-        private Boolean move1 = false;
+        private Boolean move1 = true;
         private DirectoryInfo info;
         readonly Dictionary<string, short> hotKeyDic = new Dictionary<string, short>();
         private int count = 0;
         private int MAXBUFFERTIME = 15;
-
+        NeateaseAPI.API api = new NeateaseAPI.API();
+        MyPlayer player = new MyPlayer();
+        MediaPlayer playerhandle = null;
+        PlayerStatus currentStatus = PlayerStatus.NerverStart;
+        ObservableCollection<Song> playList = new ObservableCollection<Song>();
+        Dictionary<String, String> list = new Dictionary<String, String>();
+        List<Song> songsOfList = new List<Song>();
+        string currentListId = null;
+        private int currentIndex = 0;
+        string defaultPath = "D://timerconfig//";
+        string defaultUid = "517377194";
+        string folderPath;
+        private NetworkAdapter[] adapters;
+        string currentPath = System.Environment.CurrentDirectory + "\\setting.ini";
+        private NetworkMonitor monitor;
         public MainWindow()
         {
             InitializeComponent();
@@ -57,34 +73,67 @@ namespace WPF_Player
             };
             this.Loaded += FormMain_Load;
             this.ShowInTaskbar = false;
+            this.Topmost = false;
+            
             myTimer = new DispatcherTimer();  //实例化定时器
             //设置定时器属性
             myTimer.Interval = new TimeSpan(0, 0, 1);  //创建时分秒
             myTimer.Tick += new EventHandler(Timer_Tick);
             //启动定时器
-            GetList(folderPath);
-            GetMP3Files(folderPath, currentListId).ToList().ForEach(x => playList.Add(x));
-            WinPosition();
             Read();
+            GetList(defaultPath);
+            GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
+            WinPosition();
             Initializenotifyicon();
-            myTimer.Start();
+            myTimer.Start();  
         }
-        MyPlayer player = new MyPlayer();
-        MediaPlayer playerhandle = null;
-        PlayerStatus currentStatus = PlayerStatus.NerverStart;
-        ObservableCollection<Song> playList = new ObservableCollection<Song>();
-        Dictionary<String, String> list = new Dictionary<String, String>();
-        List<Song> songsOfList = new List<Song>();
-        string currentListId = null;
-        private int currentIndex = 0;
-        string folderPath = "D://timerconfig//";
-        private NetworkAdapter[] adapters;
-        private NetworkMonitor monitor;
+
+        //API
+        [DllImport("user32")]
+        private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        [DllImport("user32")]
+        private static extern IntPtr FindWindowEx(IntPtr par1, IntPtr par2,String par3,String par4);
+        [DllImport("user32")]
+        private static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+        /// <summary>
+        /// 将程序嵌入桌面
+        /// </summary>
+        /// <returns></returns>
+        private IntPtr GetDesktopPtr()//寻找桌面的句柄
+        {
+            // 情况一
+            IntPtr hwndWorkerW = IntPtr.Zero;
+            IntPtr hShellDefView = IntPtr.Zero;
+            IntPtr hwndDesktop = IntPtr.Zero;
+            IntPtr hProgMan = FindWindow("Progman", "Program Manager");
+            if (hProgMan != IntPtr.Zero)
+            {
+                hShellDefView = FindWindowEx(hProgMan, IntPtr.Zero, "SHELLDLL_DefView", null);
+                if (hShellDefView != IntPtr.Zero)
+                {
+                    hwndDesktop = FindWindowEx(hShellDefView, IntPtr.Zero, "SysListView32", null);
+                }
+            }
+            if (hwndDesktop != IntPtr.Zero) return hwndDesktop;
+
+            // 情况二
+            //必须存在桌面窗口层次
+            while (hwndDesktop == IntPtr.Zero)
+            {
+                //获得WorkerW类的窗口
+                hwndWorkerW = FindWindowEx(IntPtr.Zero, hwndWorkerW, "WorkerW", null);
+                if (hwndWorkerW == IntPtr.Zero) break;
+                hShellDefView = FindWindowEx(hwndWorkerW, IntPtr.Zero, "SHELLDLL_DefView", null);
+                if (hShellDefView == IntPtr.Zero) continue;
+                hwndDesktop = FindWindowEx(hShellDefView, IntPtr.Zero, "SysListView32", null);
+            }
+            return hwndDesktop;
+        }
 
         private void FormMain_Load(object sender, System.EventArgs e)
         {
             monitor = new NetworkMonitor();
-            this.adapters = monitor.Adapters;           
+            this.adapters = monitor.Adapters;
         }
 
         private void TimerCounter_Tick()
@@ -156,6 +205,7 @@ namespace WPF_Player
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            SetParent(new WindowInteropHelper(this).Handle, GetDesktopPtr());
             playerhandle = player.GetPlayerHandle();
           
             playerhandle.MediaFailed += playerhandle_MediaFailed;
@@ -163,7 +213,7 @@ namespace WPF_Player
 
             this.listBox.ItemsSource = songsOfList;
             listBox.DisplayMemberPath = "Name";
-            listBox.SelectedValuePath = "Location";
+            listBox.SelectedValuePath = "Location";   
         }
         //private void acquireList(String folderName)
         //{
@@ -193,8 +243,9 @@ namespace WPF_Player
         private void GetList(String folderName)
         {
             //if (!loaded) { 
-            if (!Directory.Exists(folderName)|| !File.Exists(folderName + "playlist.json"))
+            if (!File.Exists(folderName + "playlist.json"))
             {
+                //_getList();
                 //acquireList(folderName);
                 //throw new Exception("文件夹:" + folderName + "不存在");
                 System.Windows.MessageBox.Show("请提前运行小工具获得歌单,如已运行请查看D盘是否存在timerconfig配置文件夹", "获取歌单失败", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -344,7 +395,7 @@ namespace WPF_Player
         private void btn_Previous_Click(object sender, RoutedEventArgs e)
         {
             if (playList.Count > 0)
-                PlayPrevious();
+            PlayPrevious();
         }
     
         void PlayPrevious()
@@ -389,10 +440,10 @@ namespace WPF_Player
         private List<Song> GetMP3Files(string folderName,string listID)
         {
             //Console.WriteLine("当前listId:" + listID);
-            if (!Directory.Exists(folderName))
+            if (!File.Exists(folderName+"songs.json"))
             {
                 System.Windows.MessageBox.Show("请提前运行小工具获得歌单,如已运行请查看D盘是否存在timerconfig配置文件夹", "获取歌曲失败", MessageBoxButton.OK, MessageBoxImage.Error);
-                return new List<Song>(); 
+                //return new List<Song>(); 
                 //throw new Exception("文件夹:" + folderName + "不存在！");
             }
             songsOfList.Clear();
@@ -411,7 +462,7 @@ namespace WPF_Player
             return songsOfList;
         }
 
-        private void listBox_MouseDoubleClick(object sender, RoutedEventArgs e)
+        private void ListBox_MouseDoubleClick(object sender, RoutedEventArgs e)
         {
             if (currentStatus == PlayerStatus.Start)
                 player.Stop();
@@ -433,20 +484,15 @@ namespace WPF_Player
         private void Timer_Tick(Object sender, EventArgs e)
         {
             DateTime now = DateTime.Now;
-            this.time.Content = now.Hour.ToString() + ":" + now.Minute.ToString() + ":" + now.Second.ToString();
-            this.date.Content = now.Year.ToString() + "-" + now.Month.ToString() + "-" + now.Day.ToString();
-            this.days.Content = getDays(now);
-            if (now.Minute >= 50)
-            {
-                this.back.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(79, 239, 62));
-            }
-            else
-            {
-                this.back.Fill = System.Windows.Media.Brushes.Black;
-            }
+            this.time.Content = transTime(now.Hour.ToString()) + ":" + transTime(now.Minute.ToString()) + ":" + transTime(now.Second.ToString());
             TimerCounter_Tick();
         }
 
+        // 将2改成02
+        private String transTime(String time)
+        {
+            return time.Length==1?("0"+time):time;
+        }
         private int getDays(DateTime now)
         {
             int days = 0;
@@ -489,8 +535,51 @@ namespace WPF_Player
                 }
             }
         }
-        string[] words = new string[6];
-        string[] explans = new string[6];
+        //string[] words = new string[6];
+        //string[] explans = new string[6];
+        public void init()
+        {
+            Dictionary<String, String> set;
+            if (!File.Exists(currentPath))
+            {
+                set = defaultSets();
+                StreamWriter writer = File.CreateText(currentPath);
+                writer.WriteLine(JObject.FromObject(set));
+                writer.Flush();
+                writer.Close();
+            }
+            else
+            {
+                StreamReader reader = new StreamReader(currentPath, Encoding.UTF8);
+                String line;
+                StringBuilder sb = new StringBuilder();
+                while ((line = reader.ReadLine()) != null)
+                {
+                    sb.Append(line);
+                }
+                set = JObject.Parse(sb.ToString()).ToObject<Dictionary<String, String>>();
+            }
+            folderPath = set["path"] == null ? defaultPath : set["path"];
+            string uidPath = folderPath + "uid.ini";
+            string playListPath = folderPath + "playlist.json";
+            string songsListPath = folderPath + "songs.json";
+            string listIdPath = folderPath + "listid.ini";
+            if (!File.Exists(uidPath))
+            {
+                StreamWriter writer = File.CreateText(uidPath);
+                writer.WriteLine(set["uid"] == null ? defaultUid : set["uid"]);
+                writer.Flush();
+                writer.Close();
+            }
+            if (!File.Exists(playListPath) || !File.Exists(listIdPath))
+            {
+                _getList();
+            }
+            else if (!File.Exists(songsListPath))
+            {
+                _getSongs();
+            }
+        }
         public void Read()
         {
             if (!Directory.Exists(@"D:\picture\"))
@@ -502,63 +591,23 @@ namespace WPF_Player
                 info = new DirectoryInfo(@"D:\picture\");
                 //Console.WriteLine("yes");
             }
-            if (!File.Exists("D:\\words.txt"))
-            {
+          
+        }
+        private void _getList()
+        {
+            api.getUserListAsync(folderPath);
 
-                StreamWriter sw = System.IO.File.CreateText("D:\\words.txt");
-                for (int k = 1; k <= 6; k++)
-                {
-                    sw.WriteLine("word" + k + " explan" + k);
-                }
-                sw.Close();
-            }
-
-            StreamReader sr = new StreamReader("D:\\words.txt", Encoding.Default);
-            String line;
-            int num = 0;
-            while ((line = sr.ReadLine()) != null)
-            {
-                char[] spector = { ' ' };
-                if (num >= 6)
-                {
-                    break;
-                }
-                switch (num)
-                {
-                    case 0:
-                        this.word1.Content = line.Split(spector)[0];
-                        words[0] = line.Split(spector)[0];
-                        explans[0] = line.Split(spector)[1];
-                        break;
-                    case 1:
-                        this.word2.Content = line.Split(spector)[0];
-                        words[1] = line.Split(spector)[0];
-                        explans[1] = line.Split(spector)[1];
-                        break;
-                    case 2:
-                        this.word3.Content = line.Split(spector)[0];
-                        words[2] = line.Split(spector)[0];
-                        explans[2] = line.Split(spector)[1];
-                        break;
-                    case 3:
-                        this.word4.Content = line.Split(spector)[0];
-                        words[3] = line.Split(spector)[0];
-                        explans[3] = line.Split(spector)[1];
-                        break;
-                    case 4:
-                        this.word5.Content = line.Split(spector)[0];
-                        words[4] = line.Split(spector)[0];
-                        explans[4] = line.Split(spector)[1];
-                        break;
-                    case 5:
-                        this.word6.Content = line.Split(spector)[0];
-                        words[5] = line.Split(spector)[0];
-                        explans[5] = line.Split(spector)[1];
-                        break;
-                }
-                num++;
-            }
-            sr.Close();
+        }
+        private void _getSongs()
+        {
+            api.getSongs(folderPath);
+        }
+        private Dictionary<String,String> defaultSets()
+        {
+            Dictionary<String, String> set = new Dictionary<string, string>();
+            set.Add("uid", defaultUid);
+            set.Add("path", defaultPath);
+            return set;
         }
         private int[] getDayOfYear(DateTime now)
         {
@@ -574,60 +623,6 @@ namespace WPF_Player
             }
         }
 
-        private void Word1_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Read();
-            this.word1.Content = explans[0];
-        }
-        private void Word2_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Read();
-            this.word2.Content = explans[1];
-        }
-        private void Word3_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Read();
-            this.word3.Content = explans[2];
-        }
-        private void Word4_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Read();
-            this.word4.Content = explans[3];
-        }
-        private void Word5_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Read();
-            this.word5.Content = explans[4];
-        }
-        private void Word6_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Read();
-            this.word6.Content = explans[5];
-        }
-        private void Word1_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            this.word1.Content = words[0];
-        }
-        private void Word2_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            this.word2.Content = words[1];
-        }
-        private void Word3_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            this.word3.Content = words[2];
-        }
-        private void Word4_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            this.word4.Content = words[3];
-        }
-        private void Word5_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            this.word5.Content = words[4];
-        }
-        private void Word6_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            this.word6.Content = words[5];
-        }
         public void WinPosition()
         {
             double ScreenWidth = System.Windows.SystemParameters.PrimaryScreenWidth;//WPF
@@ -662,7 +657,7 @@ namespace WPF_Player
             mnuItms[2] = new System.Windows.Forms.MenuItem();
             mnuItms[2].Text = "Locked";
             mnuItms[2].Click += new System.EventHandler(this.Locked);
-            mnuItms[2].Checked = true;
+            mnuItms[2].Checked = false;
 
             mnuItms[3] = new System.Windows.Forms.MenuItem("-");
 
@@ -692,7 +687,7 @@ namespace WPF_Player
 
         private void Settings(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("notepad.EXE", "D:\\words.txt");
+            System.Diagnostics.Process.Start("notepad.EXE", defaultPath+"listId.ini");
         }
 
         public void click(object sender, System.EventArgs e)
@@ -859,6 +854,5 @@ namespace WPF_Player
             }
             return false;
         }
-
     }
 }

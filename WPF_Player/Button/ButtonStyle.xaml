@@ -22,7 +22,7 @@
                     <Grid>
                         <Ellipse  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
                         </Ellipse>
-                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">                            
+                        <!--<Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">                            
                             <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
                                    Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
                                    X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
@@ -33,7 +33,7 @@
                                    X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.6875}" 
                                    Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.8125}" 
                                    Stroke="{StaticResource btnColor1}"  StrokeThickness="5"></Line>
-                        </Canvas>
+                        </Canvas>-->
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
@@ -55,7 +55,7 @@
                     <Grid>
                         <Ellipse Name="el_btnPlay"  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
                         </Ellipse>
-                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
+                        <!--<Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
                             <Line Name="l1_btnPlay"  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
                                    Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
                                    X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
@@ -71,15 +71,15 @@
                                    X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
                                    Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
                                    Stroke="{StaticResource btnColor1}"  StrokeThickness="2"></Line>
-                        </Canvas>
+                        </Canvas>-->
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="true">
+                        <!--<Trigger Property="IsMouseOver" Value="true">
                             <Setter TargetName="el_btnPlay" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l1_btnPlay" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l2_btnPlay" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l3_btnPlay" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
-                        </Trigger>
+                        </Trigger>-->
                         <Trigger Property="IsMouseOver" Value="false">
                             <Setter Property="Background" Value="White"></Setter>
                         </Trigger>
@@ -96,7 +96,7 @@
                     <Grid>
                         <Ellipse  Name="el_btnNext" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
                         </Ellipse>
-                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
+                        <!--<Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
                             <Line Name="l1_btnNext"  X1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}" 
                                    Y1="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}" 
                                    X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.3125}"
@@ -117,16 +117,16 @@
                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.75}" 
                                   Stroke="{StaticResource btnColor1}" StrokeThickness="5"></Line>
-                        </Canvas>
+                        </Canvas>-->
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="true">
+                        <!--<Trigger Property="IsMouseOver" Value="true">
                             <Setter TargetName="el_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l1_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l2_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l3_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l4_btnNext" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
-                        </Trigger>
+                        </Trigger>-->
                         <Trigger Property="IsMouseOver" Value="false">
                             <Setter Property="Background" Value="White"></Setter>
                         </Trigger>
@@ -144,7 +144,7 @@
                     <Grid>
                         <Ellipse Name="el_Previous" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
                         </Ellipse>
-                        <Canvas Height="80" Width="80" Opacity="1">
+                        <!--<Canvas Height="80" Width="80" Opacity="1">
                             <Line Name="l1_Previous"  X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
                                    Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.25}" 
                                    X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
@@ -165,16 +165,16 @@
                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
                                   Stroke="{StaticResource btnColor1}" StrokeThickness="5"></Line>
-                        </Canvas>
+                        </Canvas>-->
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="true">
+                        <!--<Trigger Property="IsMouseOver" Value="true">
                             <Setter TargetName="el_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l1_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l2_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l3_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="l4_Previous" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>                            
-                        </Trigger>
+                        </Trigger>-->
                         <Trigger Property="IsMouseOver" Value="false">
                             <Setter Property="Background" Value="White"></Setter>
                         </Trigger>
@@ -193,7 +193,7 @@
                     <Grid>
                         <Ellipse Name="el_btnPause"  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
                         </Ellipse>
-                        <Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
+                        <!--<Canvas Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Opacity="1">
                             <Rectangle Name="r1_btnPause" Height="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.5}" 
                                        Width="5"
                                        Canvas.Left="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.25}"
@@ -206,15 +206,15 @@
                                        Canvas.Top="{TemplateBinding Height, Converter={StaticResource valueConverter}, ConverterParameter=0.1875}"
                                        Fill="{StaticResource btnColor1}" StrokeThickness="0">
                             </Rectangle>                           
-                        </Canvas>
+                        </Canvas>-->
                     </Grid>
-                    <ControlTemplate.Triggers>
+                    <!--<ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
                             <Setter TargetName="el_btnPause" Property="Stroke" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="r1_btnPause" Property="Fill" Value="{StaticResource btnColor2}"></Setter>
                             <Setter TargetName="r2_btnPause" Property="Fill" Value="{StaticResource btnColor2}"></Setter>
                         </Trigger>                        
-                    </ControlTemplate.Triggers>
+                    </ControlTemplate.Triggers>-->
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -304,7 +304,7 @@
                     <Grid>
                         <Ellipse  Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Fill="{TemplateBinding Background}" Stroke="{StaticResource btnColor1}" StrokeThickness="2">
                         </Ellipse>
-                        <Canvas Height="80" Width="80" Opacity="1">
+                        <!--<Canvas Height="80" Width="80" Opacity="1">
                             <Line  X1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
                                    Y1="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.25}" 
                                    X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
@@ -325,7 +325,7 @@
                                   X2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.3125}" 
                                   Y2="{TemplateBinding Height, Converter={StaticResource valueConverter},ConverterParameter=0.75}" 
                                   Stroke="{StaticResource btnColor1}" StrokeThickness="5"></Line>
-                        </Canvas>
+                        </Canvas>-->
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
@@ -437,7 +437,7 @@
                 <Style TargetType="ComboBoxItem">
                     <Setter Property="MinHeight" Value="22"></Setter>
                     <Setter Property="MinWidth" Value="60"></Setter>
-                    <Setter Property="Width" Value="170"></Setter>
+                    <Setter Property="Width" Value="145"></Setter>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ComboBoxItem">
@@ -481,8 +481,8 @@
                         </Border>
                         <!--右侧下拉button设置-->
                         <Border Grid.Column="1" BorderThickness="0,1,1,1" BorderBrush="#03ffea" CornerRadius="0,1,1,0">
-                            <!--<ToggleButton BorderThickness="3" BorderBrush="#03ffea" Style="{StaticResource ComboxStyleBtn}" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"></ToggleButton>-->
                             <ToggleButton BorderThickness="3" BorderBrush="#03ffea" Style="{StaticResource ComboxStyleBtn}" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"></ToggleButton>
+                            <!--<ToggleButton BorderThickness="3" BorderBrush="#03ffea" Style="{StaticResource ComboxStyleBtn}" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"></ToggleButton>-->
                         </Border>
                         <!--弹出popup整体设置-->
                         <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" x:Name="Popup" Focusable="False" AllowsTransparency="True" PopupAnimation="Slide" >
