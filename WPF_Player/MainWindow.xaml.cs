@@ -16,8 +16,6 @@ using System.Reflection;
 using System.Drawing;
 using System.Windows.Threading;
 using Echevil;
-using System.Runtime.InteropServices;
-using NeteaseCloudMusicApi;
 
 namespace WPF_Player
 {
@@ -43,6 +41,7 @@ namespace WPF_Player
         ObservableCollection<Song> playList = new ObservableCollection<Song>();
         Dictionary<String, String> list = new Dictionary<String, String>();
         List<Song> songsOfList = new List<Song>();
+        BindingSource bsSong = new BindingSource();
         string currentListId = null;
         private int currentIndex = 0;
         string defaultPath = "D://timerconfig//";
@@ -211,7 +210,8 @@ namespace WPF_Player
             playerhandle.MediaFailed += playerhandle_MediaFailed;
             player.playEvent += player_playEvent;
 
-            this.listBox.ItemsSource = songsOfList;
+            bsSong.DataSource = songsOfList;
+            this.listBox.ItemsSource = bsSong;
             listBox.DisplayMemberPath = "Name";
             listBox.SelectedValuePath = "Location";   
         }
@@ -466,11 +466,15 @@ namespace WPF_Player
         {
             if (currentStatus == PlayerStatus.Start)
                 player.Stop();
-            currentIndex = this.listBox.SelectedIndex;
-            player.SongPath = listBox.SelectedValue.ToString();
-            player.Play();
-            currentStatus = PlayerStatus.Start;
-            this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPause"]);
+            var value=listBox.SelectedValue;
+            if (value != null)
+            {
+                currentIndex = this.listBox.SelectedIndex;
+                player.SongPath = value.ToString();
+                player.Play();
+                currentStatus = PlayerStatus.Start;
+                this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPause"]);
+            }  
         }
      
         private void trackBar_PlayProcessChanged(double obj)
@@ -646,7 +650,7 @@ namespace WPF_Player
             TrayIcon.Click += new System.EventHandler(this.click);
 
             //tray menu
-            System.Windows.Forms.MenuItem[] mnuItms = new System.Windows.Forms.MenuItem[7];
+            System.Windows.Forms.MenuItem[] mnuItms = new System.Windows.Forms.MenuItem[9];
             mnuItms[0] = new System.Windows.Forms.MenuItem();
             mnuItms[0].Text = "Aways Top";
             mnuItms[0].Click += new System.EventHandler(this.TopAllmost);
@@ -668,10 +672,17 @@ namespace WPF_Player
             mnuItms[5] = new System.Windows.Forms.MenuItem("-");
 
             mnuItms[6] = new System.Windows.Forms.MenuItem();
-            mnuItms[6].Text = "Exit";
-            mnuItms[6].Click += new System.EventHandler(this.ExitSelect);
-            mnuItms[6].DefaultItem = true;
+            mnuItms[6].Text = "Reload";
+            mnuItms[6].Click += new System.EventHandler(this.RelodMusic);
+     
+            mnuItms[7] = new System.Windows.Forms.MenuItem("-");
 
+            mnuItms[8] = new System.Windows.Forms.MenuItem();
+            mnuItms[8].Text = "Exit";
+            mnuItms[8].Click += new System.EventHandler(this.ExitSelect);
+            mnuItms[8].DefaultItem = true;
+
+            
 
             notifyiconMnu = new System.Windows.Forms.ContextMenu(mnuItms);
             TrayIcon.ContextMenu = notifyiconMnu;
@@ -711,6 +722,34 @@ namespace WPF_Player
         {
             TrayIcon.Visible = false;
             this.Close();
+        }
+
+        public void RelodMusic(object sender, System.EventArgs e)
+        {
+            if (currentStatus == PlayerStatus.Start)
+            {
+                Play();
+            }
+            this.playList.Clear();
+            StreamReader listIdReader = new StreamReader(defaultPath+"listId.ini");
+            String lid = listIdReader.ReadLine();
+            listIdReader.Close();
+            // 如果读出来是空，则把现在的写入
+            if (lid == null || lid.Trim() == "")
+            {
+                StreamWriter sw = System.IO.File.CreateText(defaultPath+ "listId.ini");
+                sw.WriteLine(currentListId);
+                sw.Flush();
+                sw.Close();
+            }
+            // 如果两个不相等
+            else if (lid != currentListId)
+            {
+                currentListId = lid;
+                GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
+                bsSong.ResetBindings(false);
+                this.lable.Content = "xx:xx/xx:xx";
+            }
         }
         #region Window styles
         [Flags]

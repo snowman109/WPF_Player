@@ -8,9 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using NeteaseCloudMusicApi;
-using core;
-using netease;
-using secret;
 namespace WPF_Player.NeateaseAPI
 {
     class API
