@@ -7,14 +7,14 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.IO;
 using System.Windows.Forms;
+using NLog;
 
 namespace WPF_Player
 {
    public class MyPlayer:INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-     
- 
+        private Logger logger = NLog.LogManager.GetLogger("player");
        public delegate void PlayEvent(object sender);
        /// <summary>
        /// 定义事件委托，在播放时不断触发
@@ -70,8 +70,6 @@ namespace WPF_Player
             get { return _player.Source.LocalPath; }
             set {
                 _songPath = value;
-
-                Console.WriteLine("player播放了" + value);
                 _player.Open(new Uri(value));
                 if (_player.NaturalDuration.HasTimeSpan)
                 {

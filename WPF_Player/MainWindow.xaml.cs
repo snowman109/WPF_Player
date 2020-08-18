@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Drawing;
 using System.Windows.Threading;
 using Echevil;
+using NLog;
 
 namespace WPF_Player
 {
@@ -23,7 +24,7 @@ namespace WPF_Player
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-   
+
     public partial class MainWindow : Window
     {
         private NotifyIcon TrayIcon;
@@ -38,55 +39,54 @@ namespace WPF_Player
         MyPlayer player = new MyPlayer();
         MediaPlayer playerhandle = null;
         PlayerStatus currentStatus = PlayerStatus.NerverStart;
-        ObservableCollection<Song> playList = new ObservableCollection<Song>();
-        Dictionary<String, String> list = new Dictionary<String, String>();
-        List<Song> songsOfList = new List<Song>();
+        ObservableCollection<Song> playList = new ObservableCollection<Song>(); // 播放列表
+        Dictionary<String, String> list = new Dictionary<String, String>(); // 歌单id和名字
+        List<Song> songsOfList = new List<Song>(); // 当前歌单歌曲
         BindingSource bsSong = new BindingSource();
         string currentListId = null;
         private int currentIndex;
         string mode;
         String span;
-        private List<string> playMode=new List<string>(); // 0顺序播放，1随机播放，2单曲循环
+        private List<string> playMode = new List<string>(); // 0顺序播放，1随机播放，2单曲循环
         string defaultPath = "D://timerconfig//";
         string defaultUid = "517377194";
         string folderPath;
+        Logger logger = NLog.LogManager.GetLogger("wpf_player");
         private NetworkAdapter[] adapters;
         string currentPath = System.Environment.CurrentDirectory + "\\setting.ini";
         private NetworkMonitor monitor;
         public MainWindow()
         {
+            logger.Info("程序启动，开始初始化：");
             InitializeComponent();
             this.Loaded += image_Loaded;
             this.Loaded += Window_Loaded;
             this.Loaded += (sender, e) =>
             {
-                var wpfHwnd = new WindowInteropHelper(this).Handle;
-                var hWndSource = HwndSource.FromHwnd(wpfHwnd);
-                //添加处理程序
-                if (hWndSource != null) hWndSource.AddHook(MainWindowProc);
-                hotKeyDic.Add("Ctrl-P", Win32.GlobalAddAtom("Ctrl-P"));
-                hotKeyDic.Add("Ctrl-Next", Win32.GlobalAddAtom("Ctrl-Next"));
-                hotKeyDic.Add("Ctrl-Pre", Win32.GlobalAddAtom("Ctrl-Pre"));
-                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-P"], Win32.KeyModifiers.Ctrl|Win32.KeyModifiers.Alt ,(int)System.Windows.Forms.Keys.P);
-                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Next"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.Right);
-                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Pre"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.Left);
+                hotkey();
             };
+            logger.Info("热键初始化成功！");
             playMode.Add("order");
             playMode.Add("shuffle");
             playMode.Add("once");
             mode = playMode[0];
             this.Loaded += FormMain_Load;
+            logger.Info("网络部件初始化成功！");
             this.ShowInTaskbar = false;
             myTimer = new DispatcherTimer();  //实例化定时器
             //设置定时器属性
             myTimer.Interval = new TimeSpan(0, 0, 1);  //创建时分秒
             myTimer.Tick += new EventHandler(Timer_Tick);
-            //启动定时器
+            // 启动定时器
             Read();
+            logger.Info("壁纸图片读取成功！");
             initArgs();
+            logger.Info("参数初始化成功！");
             WinPosition();
             Initializenotifyicon();
-            myTimer.Start();  
+            logger.Info("设置初始化成功！");
+            myTimer.Start();
+            logger.Info("计时器初始化成功！");
         }
 
         private void initArgs()
@@ -97,7 +97,7 @@ namespace WPF_Player
             span = "0:0:0";
             if (File.Exists(defaultPath + "save.json"))
             {
-                StreamReader sr = new StreamReader(defaultPath + "save.json",Encoding.UTF8);
+                StreamReader sr = new StreamReader(defaultPath + "save.json", Encoding.UTF8);
                 String line;
                 StringBuilder sb = new StringBuilder();
                 while ((line = sr.ReadLine()) != null)
@@ -106,23 +106,75 @@ namespace WPF_Player
                 }
                 JObject save = JObject.Parse(sb.ToString());
                 sr.Close();
+                if (!File.Exists(defaultPath + "listId.ini"))
+                {
+                    GetList(defaultPath);
+                }
                 sr = new StreamReader(defaultPath + "listId.ini", Encoding.UTF8);
                 currentListId = sr.ReadLine();
+                sr.Close();
+                Boolean success = true;
                 if (currentListId.Equals(save["currentListId"].ToString()))
                 {
+                    logger.Info("读取保存文件ing");
                     list = save["list"].ToObject<Dictionary<string, string>>();
+                    if (list == null || list.Count == 0)
+                    {
+                        logger.Error("读取保存内容失败，歌单初始化失败，歌单为空");
+                        success = false;
+                    }
                     playList = save["playList"].ToObject<ObservableCollection<Song>>();
+                    if (playList == null || playList.Count == 0)
+                    {
+                        success = false;
+                        logger.Error("读取保存内容失败，播放列表初始化失败，播放列表为空");
+                    }
                     songsOfList = save["songsOfList"].ToObject<List<Song>>();
+                    if (songsOfList == null || songsOfList.Count == 0)
+                    {
+                        success = false;
+                        logger.Error("读取保存内容失败，歌单详情初始化失败，歌单详情为空");
+                    }
                     currentIndex = int.Parse(save["currentIndex"].ToString());
-                    span= save["position"].ToString();
+                    if (currentIndex >= playList.Count)
+                    {
+                        currentIndex = 0;
+                        logger.Error("读取保存内容失败，当前播放索引初始化失败，长度超过列表长度，已初始化为0");
+                    }
+                    span = save["position"].ToString();
+                    if (span == null || span.Length == 0)
+                    {
+                        span = "00:00:00.0";
+                    }
                 }
                 else
                 {
+                    logger.Error("读取保存内容失败，保存的歌单id和设置的歌单id不同");
+                    success = false;
+                }
+                if (!success)
+                {
+                    list.Clear();
+                    playList.Clear();
+                    songsOfList.Clear();
                     GetList(defaultPath);
                     GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
+                    currentIndex = 0;
+                    span = "00:00:00.0";
+                    logger.Info("读取保存内容失败，正在初始化配置");
                 }
                 mode = save["mode"].ToString();
-                move1 = bool.Parse(save["move1"].ToString());
+                if (mode == null || mode.Length == 0)
+                {
+                    mode = playMode[0];
+                }
+                logger.Info("当前歌单为:" + list[currentListId] + ";当前歌曲为:" + playList[currentIndex].Name + ";当前播放进度为:" + span + ";当前播放模式为:" + mode);
+                string _move1 = save["move1"].ToString();
+                if (_move1 == null || _move1.Length == 0)
+                {
+                    _move1 = "true";
+                }
+                move1 = bool.Parse(_move1);
             }
             else
             {
@@ -139,7 +191,15 @@ namespace WPF_Player
         }
         private void showMusic()
         {
-            Song song = playList[currentIndex];
+            Song song;
+            if (currentIndex >= playList.Count)
+            {
+                song = playList[0];
+            }
+            else
+            {
+                song = playList[currentIndex];
+            }
             this.listBox.SelectedIndex = currentIndex;
             player.CurrentSong = song;
             playerhandle.Open(new Uri(song.Location));
@@ -147,7 +207,7 @@ namespace WPF_Player
             currentStatus = PlayerStatus.Pause;
             this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPlay"]);
             var now = DateTime.Now;
-            while (!playerhandle.NaturalDuration.HasTimeSpan) 
+            while (!playerhandle.NaturalDuration.HasTimeSpan)
             {
                 if (DateTime.Now.Subtract(now).TotalSeconds > 10)
                 {
@@ -156,20 +216,42 @@ namespace WPF_Player
             }
             String[] times = span.Split(':');
             playerhandle.Position = new TimeSpan(int.Parse(times[0]), int.Parse(times[1]), int.Parse(times[2].Split('.')[0]));
-            if (playerhandle != null&& playerhandle.NaturalDuration.HasTimeSpan)
+            if (playerhandle != null && playerhandle.NaturalDuration.HasTimeSpan)
             {
                 this.lable.Content = string.Format("{0}/{1}", playerhandle.Position.ToString("mm\\:ss"), playerhandle.NaturalDuration.TimeSpan.ToString("mm\\:ss"));
             }
-            
+
         }
 
         //API
         [DllImport("user32")]
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
         [DllImport("user32")]
-        private static extern IntPtr FindWindowEx(IntPtr par1, IntPtr par2,String par3,String par4);
+        private static extern IntPtr FindWindowEx(IntPtr par1, IntPtr par2, String par3, String par4);
         [DllImport("user32")]
         private static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+        // 注册热键
+        private void hotkey()
+        {
+            var wpfHwnd = new WindowInteropHelper(this).Handle;
+            var hWndSource = HwndSource.FromHwnd(wpfHwnd);
+            //添加处理程序
+            if (hWndSource != null) hWndSource.AddHook(MainWindowProc);
+            try
+            {
+                hotKeyDic.Add("Ctrl-P", Win32.GlobalAddAtom("Ctrl-P"));
+                hotKeyDic.Add("Ctrl-Next", Win32.GlobalAddAtom("Ctrl-Next"));
+                hotKeyDic.Add("Ctrl-Pre", Win32.GlobalAddAtom("Ctrl-Pre"));
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-P"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.P);
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Next"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.Right);
+                Win32.RegisterHotKey(wpfHwnd, hotKeyDic["Ctrl-Pre"], Win32.KeyModifiers.Ctrl | Win32.KeyModifiers.Alt, (int)System.Windows.Forms.Keys.Left);
+            }
+            catch (System.ArgumentException)
+            {
+
+            }
+                
+        }
         /// <summary>
         /// 将程序嵌入桌面
         /// </summary>
@@ -217,7 +299,11 @@ namespace WPF_Player
             string up = "KB/s";
             double downloadSpeed = 0;
             double uploadSpeed = 0;
-            for(int i = 0; i < adapters.Length; i++)
+            if (adapters == null)
+            {
+                return;
+            }
+            for (int i = 0; i < adapters.Length; i++)
             {
                 monitor.StartMonitoring();
                 //Console.WriteLine(adapters[i].DownloadSpeedKbps);
@@ -238,8 +324,8 @@ namespace WPF_Player
                 uploadSpeed /= 1024;
                 up = "MB/s";
             }
-            this.Download.Content = "↓ " +  downloadSpeed.ToString("0.00")+down;
-            this.Upload.Content = "↑ "+uploadSpeed.ToString("0.00")+up;
+            this.Download.Content = "↓ " + downloadSpeed.ToString("0.00") + down;
+            this.Upload.Content = "↑ " + uploadSpeed.ToString("0.00") + up;
             //this.LableDownloadValue.Text = String.Format("{0:n} kbps", adapter.DownloadSpeedKbps);
             //this.LabelUploadValue.Text = String.Format("{0:n} kbps", adapter.UploadSpeedKbps);
         }
@@ -281,7 +367,7 @@ namespace WPF_Player
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             SetParent(new WindowInteropHelper(this).Handle, GetDesktopPtr());
-            
+
         }
         //private void acquireList(String folderName)
         //{
@@ -310,12 +396,8 @@ namespace WPF_Player
         //}
         private void GetList(String folderName)
         {
-            //if (!loaded) { 
             if (!File.Exists(folderName + "playlist.json"))
             {
-                //_getList();
-                //acquireList(folderName);
-                //throw new Exception("文件夹:" + folderName + "不存在");
                 System.Windows.MessageBox.Show("请提前运行小工具获得歌单,如已运行请查看D盘是否存在timerconfig配置文件夹", "获取歌单失败", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
@@ -333,7 +415,7 @@ namespace WPF_Player
                             currentListId = jProperty.Name.ToString();
                         }
                     }
-                    if(currentListId == null)
+                    if (currentListId == null)
                     {
                         currentListId = list.Keys.ToList()[0];
                     }
@@ -351,7 +433,7 @@ namespace WPF_Player
                         currentListId = lid.Trim();
                     }
                     else
-                    { 
+                    {
                         StreamWriter sw = System.IO.File.CreateText(folderName + "listId.ini");
                         sw.WriteLine(currentListId);
                     }
@@ -369,8 +451,6 @@ namespace WPF_Player
                 sw.WriteLine(currentListId);
                 sw.Close();
             }
-            //    loaded = true;
-            //}
         }
         void player_playEvent(object sender)
         {
@@ -381,6 +461,7 @@ namespace WPF_Player
                 if (count > MAXBUFFERTIME)
                 {
                     count = 0;
+                    logger.Info("播放" + playList[currentIndex].Name + "失败，没有版权");
                     PlayNext();
                 }
                 return;
@@ -404,7 +485,7 @@ namespace WPF_Player
                 }
                 return;
             }
-             
+
             //    this.trackBar.MaxValue = totalTime;
             //    this.trackBar.CurrentValue = PlayedTime;
             //    lastValue = (int)this.trackBar.CurrentValue;
@@ -418,12 +499,13 @@ namespace WPF_Player
             this.listBox.SelectedIndex = currentIndex;
             player.CurrentSong = playList[currentIndex];
             player.Play();
+            logger.Info("开始播放:" + player.CurrentSong.Name);
             currentStatus = PlayerStatus.Start;
         }
 
         void playerhandle_MediaFailed(object sender, ExceptionEventArgs e)
         {
-            
+
         }
 
         private void btn_Play_Click(object sender, RoutedEventArgs e)
@@ -442,6 +524,7 @@ namespace WPF_Player
                 if (song != player.CurrentSong)
                     player.CurrentSong = song;
                 player.Play();
+                logger.Info("继续播放:" + song.Name);
                 currentStatus = PlayerStatus.Start;
                 this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPause_new"]);
             }
@@ -468,12 +551,14 @@ namespace WPF_Player
                 this.listBox.SelectedIndex = currentIndex;
                 player.CurrentSong = song;
                 player.Play();
+                logger.Info("开始播放:" + song.Name);
                 currentStatus = PlayerStatus.Start;
                 this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPause_new"]);
             }
             else if (currentStatus == PlayerStatus.Start)
             {
-                player.Pause();
+                player.Pause(); 
+                logger.Info("暂停:" + player.CurrentSong.Name);
                 currentStatus = PlayerStatus.Pause;
                 this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPlay"]);
             }
@@ -481,9 +566,9 @@ namespace WPF_Player
         private void btn_Previous_Click(object sender, RoutedEventArgs e)
         {
             if (playList.Count > 0)
-            PlayPrevious();
+                PlayPrevious();
         }
-    
+
         void PlayPrevious()
         {
             if (currentStatus == PlayerStatus.Start)
@@ -491,6 +576,7 @@ namespace WPF_Player
             acquireIndex(Const.PLAY_PRE);
             this.listBox.SelectedIndex = currentIndex;
             player.CurrentSong = playList[currentIndex];
+            logger.Info("播放上一曲:" + player.CurrentSong.Name);
             player.Play();
             currentStatus = PlayerStatus.Start;
         }
@@ -501,9 +587,10 @@ namespace WPF_Player
             acquireIndex(Const.PLAY_NEXT);
             this.listBox.SelectedIndex = currentIndex;
             player.CurrentSong = playList[currentIndex];
+            logger.Info("播放下一曲:" + player.CurrentSong.Name);
             player.Play();
             currentStatus = PlayerStatus.Start;
-            
+
         }
 
         // 获得下一首音乐的index
@@ -512,8 +599,9 @@ namespace WPF_Player
             // 随机播放
             if (mode.Equals(playMode[1]))
             {
-                currentIndex = new Random(Guid.NewGuid().GetHashCode()).Next(0, songsOfList.Count-1);
-            }else if (mode.Equals(playMode[0])||mode.Equals(playMode[2])) // 顺序播放
+                currentIndex = new Random(Guid.NewGuid().GetHashCode()).Next(0, songsOfList.Count - 1);
+            }
+            else if (mode.Equals(playMode[0]) || mode.Equals(playMode[2])) // 顺序播放
             {
                 if (nOrP.Equals(Const.PLAY_NEXT))
                 {
@@ -537,23 +625,23 @@ namespace WPF_Player
         }
         enum PlayerStatus
         {
-            NerverStart=1,
+            NerverStart = 1,
             Start,
             Pause,
             Stop
         }
-       
-        private List<Song> GetMP3Files(string folderName,string listID)
+
+        private List<Song> GetMP3Files(string folderName, string listID)
         {
             //Console.WriteLine("当前listId:" + listID);
-            if (!File.Exists(folderName+"songs.json"))
+            if (!File.Exists(folderName + "songs.json"))
             {
                 System.Windows.MessageBox.Show("请提前运行小工具获得歌单,如已运行请查看D盘是否存在timerconfig配置文件夹", "获取歌曲失败", MessageBoxButton.OK, MessageBoxImage.Error);
                 //return new List<Song>(); 
                 //throw new Exception("文件夹:" + folderName + "不存在！");
             }
             songsOfList.Clear();
-            using (System.IO.StreamReader file = System.IO.File.OpenText(folderName+"songs.json"))
+            using (System.IO.StreamReader file = System.IO.File.OpenText(folderName + "songs.json"))
             {
                 using (JsonTextReader reader = new JsonTextReader(file))
                 {
@@ -572,17 +660,19 @@ namespace WPF_Player
         {
             if (currentStatus == PlayerStatus.Start)
                 player.Stop();
-            var value=listBox.SelectedValue;
+            var value = listBox.SelectedValue;
             if (value != null)
             {
                 currentIndex = this.listBox.SelectedIndex;
                 player.SongPath = value.ToString();
+                player.CurrentSong = playList[currentIndex];
                 player.Play();
+                logger.Info("开始播放:" + player.CurrentSong.Name);
                 currentStatus = PlayerStatus.Start;
                 this.btn_Play.SetValue(System.Windows.Controls.Button.StyleProperty, System.Windows.Application.Current.Resources["buttonPause"]);
-            }  
+            }
         }
-     
+
         private void trackBar_PlayProcessChanged(double obj)
         {
             if (currentStatus == PlayerStatus.Start || currentStatus == PlayerStatus.Pause)
@@ -590,15 +680,16 @@ namespace WPF_Player
                 playerhandle.Position = TimeSpan.FromSeconds(obj);
             }
         }
- 
+
         private void Timer_Tick(Object sender, EventArgs e)
         {
             DateTime now = DateTime.Now;
             this.time.Content = transTime(now.Hour.ToString()) + ":" + transTime(now.Minute.ToString()) + ":" + transTime(now.Second.ToString());
             TimerCounter_Tick();
-            // 每半分钟存一下状态
-            if (now.Second%30 == 0)
+            // 每半分钟存一下状态并且注册一下热键
+            if (now.Second % 30 == 0)
             {
+                hotkey();
                 saveArgs();
             }
         }
@@ -606,7 +697,7 @@ namespace WPF_Player
         // 将2改成02
         private String transTime(String time)
         {
-            return time.Length==1?("0"+time):time;
+            return time.Length == 1 ? ("0" + time) : time;
         }
         private int getDays(DateTime now)
         {
@@ -646,6 +737,7 @@ namespace WPF_Player
                 }
                 if (SetDestPicture(f.FullName))
                 {
+                    logger.Info("更换壁纸成功");
                     break;
                 }
             }
@@ -695,6 +787,9 @@ namespace WPF_Player
                 _getSongs();
             }
         }
+        /**
+         * 查看D盘有没有picture文件夹，该文件夹用于存放壁纸。
+         */
         public void Read()
         {
             if (!Directory.Exists(@"D:\picture\"))
@@ -706,7 +801,7 @@ namespace WPF_Player
                 info = new DirectoryInfo(@"D:\picture\");
                 //Console.WriteLine("yes");
             }
-          
+
         }
         private void _getList()
         {
@@ -717,7 +812,7 @@ namespace WPF_Player
         {
             api.getSongs(folderPath);
         }
-        private Dictionary<String,String> defaultSets()
+        private Dictionary<String, String> defaultSets()
         {
             Dictionary<String, String> set = new Dictionary<string, string>();
             set.Add("uid", defaultUid);
@@ -742,8 +837,8 @@ namespace WPF_Player
         {
             double ScreenWidth = System.Windows.SystemParameters.PrimaryScreenWidth;//WPF
             double ScreenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;//WPF
-            this.Top = this.Height*1.4 ;
-            this.Left = ScreenWidth - this.Width-1;
+            this.Top = this.Height * 1.4;
+            this.Left = ScreenWidth - this.Width - 1;
             //this.Top = 0;
             //this.Left = 0;
         }
@@ -765,7 +860,7 @@ namespace WPF_Player
             mnuItms[0] = new System.Windows.Forms.MenuItem();
             mnuItms[0].Text = "Aways Top";
             mnuItms[0].Click += new System.EventHandler(this.TopAllmost);
-            mnuItms[0].Checked = false;
+            mnuItms[0].Checked = !this.Topmost;
 
             mnuItms[1] = new System.Windows.Forms.MenuItem("-");
 
@@ -785,7 +880,7 @@ namespace WPF_Player
             mnuItms[6] = new System.Windows.Forms.MenuItem();
             mnuItms[6].Text = "Reload";
             mnuItms[6].Click += new System.EventHandler(this.RelodMusic);
-     
+
             mnuItms[7] = new System.Windows.Forms.MenuItem("-");
 
             mnuItms[8] = new System.Windows.Forms.MenuItem();
@@ -799,18 +894,19 @@ namespace WPF_Player
             mnuItms[10].Click += new System.EventHandler(this.ExitSelect);
             mnuItms[10].DefaultItem = true;
 
-            
+
 
             notifyiconMnu = new System.Windows.Forms.ContextMenu(mnuItms);
             TrayIcon.ContextMenu = notifyiconMnu;
         }
 
-        private void ChangePlayMode(object sender,EventArgs e)
+        private void ChangePlayMode(object sender, EventArgs e)
         {
             System.Windows.Forms.MenuItem item = (System.Windows.Forms.MenuItem)sender;
             int index = playMode.IndexOf(item.Text);
             item.Text = playMode[(index + 1) % playMode.Count()];
             mode = item.Text;
+            logger.Info("更换播放模式为:" + mode);
         }
 
         private void Locked(object sender, EventArgs e)
@@ -819,29 +915,48 @@ namespace WPF_Player
             bool check = item.Checked;
             item.Checked = !check;
             this.move1 = !item.Checked;
+            if (move1)
+            {
+                logger.Info("窗口解锁成功");
+            }
+            else
+            {
+                logger.Info("窗口锁定成功");
+            }
         }
 
         private void Settings(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("notepad.EXE", defaultPath+"listId.ini");
+            System.Diagnostics.Process.Start("notepad.EXE", defaultPath + "listId.ini");
         }
 
         public void click(object sender, System.EventArgs e)
         {
             this.Activate();
         }
-        public void TopAllmost(object sender, System.EventArgs e)
+        public void TopAllmost(object sender, EventArgs e)
         {
             System.Windows.Forms.MenuItem item = (System.Windows.Forms.MenuItem)sender;
             bool check = item.Checked;
             item.Checked = !check;
-            this.Topmost = item.Checked;
+            this.Topmost = !item.Checked;
+            if (this.Topmost)
+            {
+                logger.Info("窗口取消置顶");
+            }
+            else
+            {
+                logger.Info("窗口置顶成功");
+            }
         }
         public void ExitSelect(object sender, System.EventArgs e)
         {
             TrayIcon.Visible = false;
-            this.Close();
             saveArgs();
+            logger.Info("保存参数成功!");
+            this.Close();
+            logger.Info("关闭成功!");
+            
         }
 
         private void saveArgs()
@@ -869,13 +984,14 @@ namespace WPF_Player
             }
             this.span = "0:0:0";
             this.playList.Clear();
-            StreamReader listIdReader = new StreamReader(defaultPath+"listId.ini");
+            StreamReader listIdReader = new StreamReader(defaultPath + "listId.ini");
             String lid = listIdReader.ReadLine();
             listIdReader.Close();
             // 如果读出来是空，则把现在的写入
             if (lid == null || lid.Trim() == "")
             {
-                StreamWriter sw = System.IO.File.CreateText(defaultPath+ "listId.ini");
+                logger.Info("重载音乐，但listId为空");
+                StreamWriter sw = System.IO.File.CreateText(defaultPath + "listId.ini");
                 sw.WriteLine(currentListId);
                 sw.Flush();
                 sw.Close();
@@ -883,10 +999,15 @@ namespace WPF_Player
             // 如果两个不相等
             else if (lid != currentListId)
             {
+                logger.Info("重载音乐，已将歌单更新为" + list[lid]);
                 currentListId = lid;
                 GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
                 bsSong.ResetBindings(false);
                 showMusic();
+            }
+            else
+            {
+                logger.Info("重载音乐，但歌单无变化");
             }
         }
         #region Window styles
@@ -982,25 +1103,25 @@ namespace WPF_Player
         static extern IntPtr BeginDeferWindowPos(int nNumWindows);
         [DllImport("user32.dll")]
         static extern bool EndDeferWindowPos(IntPtr hWinPosInfo);
-      
 
-        private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            if (msg == WM_SETFOCUS)
-            {
-                IntPtr hWnd2 = new WindowInteropHelper(this).Handle;
-                SetWindowPos(hWnd2, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-                handled = true;
-            }
-            return IntPtr.Zero;
-        }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            IntPtr windowHandle = (new WindowInteropHelper(this)).Handle;
-            HwndSource src = HwndSource.FromHwnd(windowHandle);
-            src.RemoveHook(new HwndSourceHook(this.WndProc));
-        }
+        //private IntPtr WndProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        //{
+        //    if (msg == WM_SETFOCUS)
+        //    {
+        //        IntPtr hWnd2 = new WindowInteropHelper(this).Handle;
+        //        SetWindowPos(hWnd2, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+        //        handled = true;
+        //    }
+        //    return IntPtr.Zero;
+        //}
+
+        //private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        //{
+        //    IntPtr windowHandle = (new WindowInteropHelper(this)).Handle;
+        //    HwndSource src = HwndSource.FromHwnd(windowHandle);
+        //    src.RemoveHook(new HwndSourceHook(this.WndProc));
+        //}
 
         [DllImport("user32.dll", EntryPoint = "SystemParametersInfo")]
         public static extern int SystemParametersInfo(

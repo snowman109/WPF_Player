@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA1307: 指定 StringComparison
+dotnet_diagnostic.CA1307.severity = none

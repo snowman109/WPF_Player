@@ -102,7 +102,6 @@ C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\WPF_Player.exe.man
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\WPF_Player.application
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\WPF_Player.exe
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\WPF_Player.pdb
-C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\NeteaseCloudMusicApi.dll
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\NetworkMonitor.dll
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\Newtonsoft.Json.dll
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\System.ValueTuple.dll
@@ -122,3 +121,6 @@ C:\Users\snowman\source\repos\WPF_Player\WPF_Player\obj\Debug\WPF_Player.applica
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\obj\Debug\WPF_Player.csproj.CopyComplete
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\obj\Debug\WPF_Player.exe
 C:\Users\snowman\source\repos\WPF_Player\WPF_Player\obj\Debug\WPF_Player.pdb
+C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\NLog.dll
+C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\NLog.xml
+C:\Users\snowman\source\repos\WPF_Player\WPF_Player\bin\Debug\NLog.config
