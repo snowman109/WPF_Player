@@ -17,7 +17,5 @@
         <Label  x:Name="lable" FontSize="10" VerticalAlignment="Center" Opacity="0.5" Foreground="WhiteSmoke" Margin="133,97,10,12" Height="21"/>
         <Label x:Name="Download" HorizontalContentAlignment="Center" Content="↓ 344.55KB/s" Opacity="0.5" FontSize="10" Foreground="LawnGreen" HorizontalAlignment="Left" Margin="60,97,0,0" VerticalAlignment="Top" Height="29" Width="73"/>
         <Label x:Name="Upload" HorizontalContentAlignment="Center" Content="↑ 22.55MB/s" Opacity="0.5" FontSize="10" Foreground="Orange" HorizontalAlignment="Left" Margin="-3,97,0,0" VerticalAlignment="Top" Height="29" Width="76"/>
-
-
     </Grid>
 </Window>

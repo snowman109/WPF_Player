@@ -492,7 +492,7 @@
                                     <DropShadowEffect Color="Black" BlurRadius="2" ShadowDepth="0" Opacity="1"/>
                                 </Border.Effect>
                                 <!--下拉幕布边界背景设置 MaxHeight="{TemplateBinding MaxDropDownHeight}"-->
-                                <ScrollViewer Margin="0,0,0,0"   Style="{DynamicResource ScrollViewerStyle}" SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" BorderBrush="#17acae" BorderThickness="2" >
+                                <ScrollViewer Margin="0,0,0,0"   Style="{DynamicResource ScrollViewerStyle}" SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" BorderBrush="#17acae" BorderThickness="2">
                                      <!--StackPanel 用于显示子级，方法是将 IsItemsHost 设置为 True--> 
                                     <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" Background="#ffffff" Opacity="0.3"/>
                                 </ScrollViewer>

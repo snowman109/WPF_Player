@@ -978,12 +978,6 @@ namespace WPF_Player
 
         public void RelodMusic(object sender, System.EventArgs e)
         {
-            if (currentStatus == PlayerStatus.Start)
-            {
-                Play();
-            }
-            this.span = "0:0:0";
-            this.playList.Clear();
             StreamReader listIdReader = new StreamReader(defaultPath + "listId.ini");
             String lid = listIdReader.ReadLine();
             listIdReader.Close();
@@ -996,14 +990,23 @@ namespace WPF_Player
                 sw.Flush();
                 sw.Close();
             }
-            // 如果两个不相等
+            // 如果两个不相等 先暂停，全部清空。
             else if (lid != currentListId)
             {
-                logger.Info("重载音乐，已将歌单更新为" + list[lid]);
+                if (currentStatus == PlayerStatus.Start)
+                {
+                    Play();
+                }
+                this.currentStatus = PlayerStatus.NerverStart;
+                this.span = "0:0:0";
+                this.playList.Clear();
                 currentListId = lid;
                 GetMP3Files(defaultPath, currentListId).ToList().ForEach(x => playList.Add(x));
                 bsSong.ResetBindings(false);
+                currentIndex = 0;
                 showMusic();
+                saveArgs();
+                logger.Info("重载音乐，已将歌单更新为" + list[lid]);
             }
             else
             {
